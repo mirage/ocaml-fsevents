@@ -28,8 +28,10 @@ module Type = Fsevents_types.C(Fsevents_types_detected)
 
 module C(F: Cstubs.FOREIGN) = struct
 
+  type t = unit ptr
+
   (* typedef struct __FSEventStream* FSEventStreamRef; *)
-  let typ = typedef (ptr void) "FSEventStreamRef"
+  let typ : t typ = typedef (ptr void) "FSEventStreamRef"
 
   module CreateFlags = struct
 
@@ -50,6 +52,15 @@ module C(F: Cstubs.FOREIGN) = struct
       watch_root = false;
       ignore_self = false;
       file_events = false;
+      mark_self = false;
+    }
+
+    let detailed_interactive = {
+      use_cf_types = false;
+      no_defer = true;
+      watch_root = true;
+      ignore_self = true;
+      file_events = true;
       mark_self = false;
     }
 
@@ -291,7 +302,8 @@ module C(F: Cstubs.FOREIGN) = struct
       let flags = CArray.from_ptr flags n in
       let ids   = CArray.from_ptr ids   n in
       for i = 0 to n - 1 do
-        fn (CArray.get paths i) (CArray.get flags i) (CArray.get ids i)
+        let id = Unsigned.UInt64.to_int64 (CArray.get ids i) in
+        fn (CArray.get paths i) (CArray.get flags i) id
       done
 
   end

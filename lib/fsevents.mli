@@ -15,3 +15,55 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  *)
+
+module CreateFlags : sig
+
+  type t = {
+    use_cf_types : bool;
+    no_defer : bool;
+    watch_root : bool;
+    ignore_self : bool;
+    file_events : bool;
+    mark_self : bool;
+  }
+
+  val detailed_interactive : t
+
+end
+
+module EventFlags : sig
+
+  type dropping_party = {
+    user : bool;
+    kernel: bool;
+  }
+
+  type item_type = File | Symlink | Dir | Hardlink
+
+  type t = {
+    must_scan_subdirs    : dropping_party option;
+    event_ids_wrapped    : bool;
+    history_done         : bool;
+    root_changed         : bool;
+    mount                : bool;
+    unmount              : bool;
+    own_event            : bool;
+    item_created         : bool;
+    item_removed         : bool;
+    item_inode_meta_mod  : bool;
+    item_renamed         : bool;
+    item_modified        : bool;
+    item_finder_info_mod : bool;
+    item_change_owner    : bool;
+    item_xattr_mod       : bool;
+    item_type            : item_type option;
+    item_is_last_hardlink: bool;
+  }
+
+end
+
+type t
+
+type callback = string -> EventFlags.t -> int64 -> unit
+
+val watch : float -> CreateFlags.t -> callback -> bytes list -> t
