@@ -18,6 +18,10 @@
 
 open Ctypes
 
+let (|||) = Int32.logor
+
+let (??>) flag int32 = if flag then int32 else 0_l
+
 let (??<) field int32 = Int32.logand field int32 = 0_l
 
 module Type = Fsevents_types.C(Fsevents_types_detected)
@@ -56,34 +60,32 @@ module C(F: Cstubs.FOREIGN) = struct
     let file_events_i  = Unsigned.UInt32.to_int32 file_events
     let mark_self_i    = Unsigned.UInt32.to_int32 mark_self
 
-    let (|||) = Int32.logor
-
-    let (??>) flag int32 = if flag then int32 else 0_l
-
     let to_uint32 {
-      none;
       use_cf_types;
       no_defer;
       watch_root;
       ignore_self;
       file_events;
       mark_self;
-    } =
+    } = Unsigned.UInt32.of_int32 (
       (??> use_cf_types use_cf_types_i) |||
       (??> no_defer     no_defer_i) |||
       (??> watch_root   watch_root_i) |||
       (??> ignore_self  ignore_self_i) |||
       (??> file_events  file_events_i) |||
       (??> mark_self    mark_self_i)
+    )
 
-    let of_uint32 i = {
-      use_cf_types = ??< i use_cf_types_i;
-      no_defer     = ??< i no_defer_i;
-      watch_root   = ??< i watch_root_i;
-      ignore_self  = ??< i ignore_self_i;
-      file_events  = ??< i file_events_i;
-      mark_self    = ??< i mark_self_i;
-    }
+    let of_uint32 i =
+      let i = Unsigned.UInt32.to_int32 i in
+      {
+        use_cf_types = ??< i use_cf_types_i;
+        no_defer     = ??< i no_defer_i;
+        watch_root   = ??< i watch_root_i;
+        ignore_self  = ??< i ignore_self_i;
+        file_events  = ??< i file_events_i;
+        mark_self    = ??< i mark_self_i;
+      }
 
     let typ = view ~read:of_uint32 ~write:to_uint32 t
 
@@ -161,8 +163,37 @@ module C(F: Cstubs.FOREIGN) = struct
       item_xattr_mod;
       item_type;
       item_is_last_hardlink;
-    } =
-      ()
+    } = Unsigned.UInt32.of_int32 (
+      (match must_scan_subdirs with
+       | None -> 0_l
+       | Some { user; kernel } ->
+         must_scan_subdirs_i |||
+         (??> user user_dropped_i) |||
+         (??> kernel kernel_dropped_i)
+      ) |||
+      (??> event_ids_wrapped event_ids_wrapped_i) |||
+      (??> history_done history_done_i) |||
+      (??> root_changed root_changed_i) |||
+      (??> mount mount_i) |||
+      (??> unmount unmount_i) |||
+      (??> own_event own_event_i) |||
+      (??> item_created item_created_i) |||
+      (??> item_removed item_removed_i) |||
+      (??> item_inode_meta_mod item_inode_meta_mod_i) |||
+      (??> item_renamed item_renamed_i) |||
+      (??> item_modified item_modified_i) |||
+      (??> item_finder_info_mod item_finder_info_mod_i) |||
+      (??> item_change_owner item_change_owner_i) |||
+      (??> item_xattr_mod item_xattr_mod_i) |||
+      (match item_type with
+       | None -> 0_l
+       | Some File    -> item_is_file_i
+       | Some Dir     -> item_is_dir_i
+       | Some Symlink -> item_is_symlink_i
+       | Some Hardlink-> item_is_hardlink_i
+      ) |||
+      (??> item_is_last_hardlink item_is_last_hardlink_i)
+    )
 
     let must_scan_subdirs_of_uint32 i =
       if ??< i must_scan_subdirs_i
@@ -182,25 +213,27 @@ module C(F: Cstubs.FOREIGN) = struct
       then Some Hardlink
       else None
 
-    let of_uint32 i = {
-      must_scan_subdirs     = must_scan_subdirs_of_uint32 i;
-      event_ids_wrapped     = ??< i event_ids_wrapped_i;
-      history_done          = ??< i history_done_i;
-      root_changed          = ??< i root_changed_i;
-      mount                 = ??< i mount_i;
-      unmount               = ??< i unmount_i;
-      own_event             = ??< i own_event_i;
-      item_created          = ??< i item_created_i;
-      item_removed          = ??< i item_removed_i;
-      item_inode_meta_mod   = ??< i item_inode_meta_mod_i;
-      item_renamed          = ??< i item_renamed_i;
-      item_modified         = ??< i item_modified_i;
-      item_finder_info_mod  = ??< i item_finder_info_mod_i;
-      item_change_owner     = ??< i item_change_owner_i;
-      item_xattr_mod        = ??< i item_xattr_mod_i;
-      item_type             = item_type_of_uint32 i;
-      item_is_last_hardlink = ??< i item_is_last_hardlink;
-    }
+    let of_uint32 i =
+      let i = Unsigned.UInt32.to_int32 i in
+      {
+        must_scan_subdirs     = must_scan_subdirs_of_uint32 i;
+        event_ids_wrapped     = ??< i event_ids_wrapped_i;
+        history_done          = ??< i history_done_i;
+        root_changed          = ??< i root_changed_i;
+        mount                 = ??< i mount_i;
+        unmount               = ??< i unmount_i;
+        own_event             = ??< i own_event_i;
+        item_created          = ??< i item_created_i;
+        item_removed          = ??< i item_removed_i;
+        item_inode_meta_mod   = ??< i item_inode_meta_mod_i;
+        item_renamed          = ??< i item_renamed_i;
+        item_modified         = ??< i item_modified_i;
+        item_finder_info_mod  = ??< i item_finder_info_mod_i;
+        item_change_owner     = ??< i item_change_owner_i;
+        item_xattr_mod        = ??< i item_xattr_mod_i;
+        item_type             = item_type_of_uint32 i;
+        item_is_last_hardlink = ??< i item_is_last_hardlink_i;
+      }
 
     let typ = view ~read:of_uint32 ~write:to_uint32 t
 
@@ -229,6 +262,11 @@ module C(F: Cstubs.FOREIGN) = struct
 
     type t = string -> EventFlags.t -> int64 -> unit
 
+    let void_string_typ = view
+        ~read:(coerce (ptr void) (ptr string))
+        ~write:(coerce (ptr string) (ptr void))
+        (ptr void)
+
     (* typedef void ( *FSEventStreamCallback )(
          ConstFSEventStreamRef streamRef,
          void *clientCallBackInfo,
@@ -237,13 +275,13 @@ module C(F: Cstubs.FOREIGN) = struct
          const FSEventStreamEventFlags eventFlags[],
          const FSEventStreamEventId eventIds[]);
     *)
-    let cstring_typ = Foreign.funptr (
-      typ @->
+    let cstring_typ = Foreign.funptr ~name:"FSEventStreamCallback" (
+      typedef typ "ConstFSEventStreamRef" @->
       ptr void @->
       size_t @->
-      ptr string @->
-      ptr EventFlags.t @->
-      ptr Type.EventId.t @->
+      void_string_typ @->
+      typedef (ptr EventFlags.typ) "const FSEventStreamEventFlags *" @->
+      typedef (ptr Type.EventId.t) "const FSEventStreamEventId *" @->
       returning void
     )
 
@@ -253,7 +291,7 @@ module C(F: Cstubs.FOREIGN) = struct
       let flags = CArray.from_ptr flags n in
       let ids   = CArray.from_ptr ids   n in
       for i = 0 to n - 1 do
-        fn (Array.get paths i) (Array.get flags i) (Array.get ids i)
+        fn (CArray.get paths i) (CArray.get flags i) (CArray.get ids i)
       done
 
   end
@@ -263,14 +301,16 @@ module C(F: Cstubs.FOREIGN) = struct
     type 'a t = {
       version : int;
       info : 'a;
-      retain : Cf.Allocate.retain_callback_t;
-      release : Cf.Allocate.release_callback_t;
-      copy_description : Cf.Allocate.copy_description_t;
+      retain : Cf.Allocator.retain_callback_t;
+      release : Cf.Allocator.release_callback_t;
+      copy_description : Cf.Allocator.copy_description_callback_t;
     }
+
+    let typ = typedef (ptr void) "FSEventStreamContext"
 
   end
 
-  module PathArray = Cf.Array.Make(Cf.String)
+  module PathArray = Cf.Array.CArray.Make(Cf.String.Bytes)
 
   (* extern FSEventStreamRef FSEventStreamCreate(
        CFAllocatorRef allocator,
@@ -284,7 +324,7 @@ module C(F: Cstubs.FOREIGN) = struct
   let create = F.foreign "FSEventStreamCreate" (
     ptr_opt void @->
     Callback.cstring_typ @->
-    ptr_opt context @->
+    ptr_opt Context.typ @->
     PathArray.typ @->
     EventId.typ @->
     Cf.TimeInterval.typ @->

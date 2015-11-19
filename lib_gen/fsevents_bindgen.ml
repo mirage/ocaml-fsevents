@@ -21,7 +21,7 @@ let () =
   let prefix = "caml_" in
   let stubs_oc = open_out "lib/fsevents_stubs.c" in
   let fmt = Format.formatter_of_out_channel stubs_oc in
-  (*Format.fprintf fmt "#include \"fsevents_util.h\"@.";*)
+  Format.fprintf fmt "#include <CoreServices/CoreServices.h>@.";
   Cstubs.write_c fmt ~prefix (module Fsevents_bindings.C);
   close_out stubs_oc;
 

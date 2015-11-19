@@ -19,6 +19,8 @@ module C(F: Cstubs.Types.TYPE) = struct
 
   let const = F.constant
 
+  let lift = F.lift_typ
+
   module CreateFlags = struct
 
     let t = F.uint32_t
@@ -36,7 +38,7 @@ module C(F: Cstubs.Types.TYPE) = struct
 
   module EventFlags = struct
 
-    let t = F.uint32_t
+    let t = F.typedef F.uint32_t "FSEventStreamEventFlags"
 
     let prefix = "kFSEventStreamEventFlag"
 
@@ -67,7 +69,7 @@ module C(F: Cstubs.Types.TYPE) = struct
 
   module EventId = struct
 
-    let t = F.uint64_t
+    let t = F.typedef F.uint64_t "FSEventStreamEventId"
 
     let prefix = "kFSEventStreamEventId"
 
@@ -76,17 +78,19 @@ module C(F: Cstubs.Types.TYPE) = struct
   end
 
   module Context = struct
+    type t
 
-    let t = F.structure "FSEventStreamContext"
+    let t : t Ctypes_static.structure F.typ = F.structure "FSEventStreamContext"
 
-    let version = F.field t "version" Cf.Index.typ
+    let version = F.field t "version" (lift Cf.Index.typ)
     let info    = F.field t "info"    F.(ptr void)
-    let retain  = F.field t "retain"  Cf.Allocate.retain_callback_typ
-    let release = F.field t "release" Cf.Allocate.release_callback_typ
+    let retain  = F.field t "retain"  (lift Cf.Allocator.retain_callback_typ)
+    let release = F.field t "release" (lift Cf.Allocator.release_callback_typ)
     let copy_description =
-      F.field t "copyDescription" Cf.Allocate.copy_description_callback_typ
+      F.field t "copyDescription"
+        (lift Cf.Allocator.copy_description_callback_typ)
 
-    let () = seal t
+    let () = F.seal t
 
   end
 

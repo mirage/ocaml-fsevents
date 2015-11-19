@@ -1,1 +1,3 @@
-<*.{ml,mli}>: package(ctypes.stubs)
+<*.{ml,mli}>: package(ctypes.stubs), package(osx-cf)
+<fsevents_stubs.c>: use_ctypes
+<*.{cma,cmxa}>: use_fsevents_stubs
