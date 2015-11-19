@@ -1,0 +1,8 @@
+version = "0.1.0"
+description = "OS X FSEvents system library bindings"
+requires = "ctypes.stubs ctypes.foreign osx-cf"
+archive(byte) = "fsevents.cma"
+archive(bytes, plugin) = "fsevents.cma"
+archive(native) = "fsevents.cmxa"
+archive(native, plugin) = "fsevents.cmxs"
+exists_if = "fsevents.cma"

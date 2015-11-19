@@ -1,0 +1,9 @@
+PKG ctypes
+PKG alcotest
+PKG osx-cf
+
+S lib
+S lib_gen
+S lib_test
+
+B _build/**
