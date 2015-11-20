@@ -31,13 +31,6 @@ type callback = C.Callback.t
 
 let watch latency flags f paths =
   let f = C.Callback.to_cstring_typ f in
-  let count = List.length paths in
-  let m = allocate_n Cf.String.Bytes.typ ~count in
-  ignore (List.fold_left (fun p path ->
-    p <-@ path;
-    p +@ 1
-  ) m paths);
-  let paths = CArray.from_ptr m count in
   C.create None f None paths C.EventId.Now latency flags
 
 let schedule_with_run_loop = C.schedule_with_run_loop

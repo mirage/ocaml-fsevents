@@ -322,7 +322,7 @@ module C(F: Cstubs.FOREIGN) = struct
 
   end
 
-  module PathArray = Cf.Array.CArray.Make(Cf.String.Bytes)
+  module PathList = Cf.Array.List.Make(Cf.String.String)
 
   (* extern FSEventStreamRef FSEventStreamCreate(
        CFAllocatorRef allocator,
@@ -337,7 +337,7 @@ module C(F: Cstubs.FOREIGN) = struct
     ptr_opt void @->
     Callback.cstring_typ @->
     ptr_opt Context.typ @->
-    PathArray.typ @->
+    PathList.typ @->
     EventId.typ @->
     Cf.TimeInterval.typ @->
     CreateFlags.typ @->
