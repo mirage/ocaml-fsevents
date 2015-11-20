@@ -39,3 +39,7 @@ let watch latency flags f paths =
   ) m paths);
   let paths = CArray.from_ptr m count in
   C.create None f None paths C.EventId.Now latency flags
+
+let schedule_with_run_loop = C.schedule_with_run_loop
+
+let start = C.start

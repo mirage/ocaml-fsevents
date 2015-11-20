@@ -344,4 +344,23 @@ module C(F: Cstubs.FOREIGN) = struct
     returning typ
   )
 
+  (* extern void FSEventStreamScheduleWithRunLoop(
+       FSEventStreamRef   streamRef,
+       CFRunLoopRef       runLoop,
+       CFStringRef        runLoopMode
+     ); *)
+  let schedule_with_run_loop = F.foreign "FSEventStreamScheduleWithRunLoop" (
+    typ @->
+    Cf.RunLoop.typ @->
+    Cf.RunLoop.Mode.typ @->
+    returning void
+  )
+
+  (* extern Boolean FSEventStreamStart(
+       FSEventStreamRef streamRef
+     ); *)
+  let start = F.foreign "FSEventStreamStart" (
+    typ @-> returning bool
+  )
+
 end
