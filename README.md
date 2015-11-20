@@ -1,4 +1,7 @@
 ## OCaml bindings to OS X FSEvents
 
-These bindings use [ctypes](https://github.com/ocamllabs/ocaml-ctypes)
-for type-safe stub generation.
+This package relies on
+[osx-cf](https://github.com/dsheets/ocaml-osx-cf) for CoreFoundation
+support. These bindings use
+[ctypes](https://github.com/ocamllabs/ocaml-ctypes) for type-safe stub
+generation.
