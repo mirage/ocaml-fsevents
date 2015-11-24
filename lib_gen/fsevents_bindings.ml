@@ -286,15 +286,16 @@ module C(F: Cstubs.FOREIGN) = struct
          const FSEventStreamEventFlags eventFlags[],
          const FSEventStreamEventId eventIds[]);
     *)
-    let cstring_typ = Foreign.funptr ~name:"FSEventStreamCallback" (
-      typedef typ "ConstFSEventStreamRef" @->
-      ptr void @->
-      size_t @->
-      void_string_typ @->
-      typedef (ptr EventFlags.typ) "const FSEventStreamEventFlags *" @->
-      typedef (ptr Type.EventId.t) "const FSEventStreamEventId *" @->
-      returning void
-    )
+    let cstring_typ =
+      Foreign.funptr ~runtime_lock:true ~name:"FSEventStreamCallback" (
+        typedef typ "ConstFSEventStreamRef" @->
+        ptr void @->
+        size_t @->
+        void_string_typ @->
+        typedef (ptr EventFlags.typ) "const FSEventStreamEventFlags *" @->
+        typedef (ptr Type.EventId.t) "const FSEventStreamEventId *" @->
+        returning void
+      )
 
     let to_cstring_typ fn _stream _info num_events paths flags ids =
       let n = Unsigned.Size_t.to_int num_events in
