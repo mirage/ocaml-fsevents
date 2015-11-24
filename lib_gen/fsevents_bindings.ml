@@ -22,7 +22,7 @@ let (|||) = Int32.logor
 
 let (??>) flag int32 = if flag then int32 else 0_l
 
-let (??<) field int32 = Int32.logand field int32 = 0_l
+let (??<) field int32 = Int32.logand field int32 <> 0_l
 
 module Type = Fsevents_types.C(Fsevents_types_detected)
 
