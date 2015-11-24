@@ -1,6 +1,7 @@
 PKG ctypes
 PKG alcotest
 PKG osx-cf
+PKG lwt
 
 S lib
 S lib_gen
