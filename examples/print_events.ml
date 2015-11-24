@@ -23,12 +23,6 @@ let watcher = Fsevents_lwt.watch 0. create_flags ["."]
 
 let { Fsevents_lwt.event_stream; stream; } = watcher
 
-let runloop = Cf_lwt.RunLoop.run_thread (fun runloop ->
-    Fsevents.schedule_with_run_loop event_stream runloop run_loop_mode;
-    if not (Fsevents.start event_stream)
-    then prerr_endline "failed to start FSEvents stream"
-  )
-
 let string_of_event { Fsevents_lwt.path; flags } =
   path^"\n"^(Fsevents.EventFlags.to_string flags)
 
@@ -50,5 +44,12 @@ let timer =
   in print_time ()
 
 ;;
-Lwt.(async (fun () -> runloop >>= fun _runloop -> print_events));
+Lwt.(async (fun () ->
+    Cf_lwt.RunLoop.run_thread (fun runloop ->
+        Fsevents.schedule_with_run_loop event_stream runloop run_loop_mode;
+        if not (Fsevents.start event_stream)
+        then prerr_endline "failed to start FSEvents stream"
+      );
+    print_events
+  ));
 Lwt_main.run timer
