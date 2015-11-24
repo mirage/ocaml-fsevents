@@ -23,7 +23,62 @@ module C = Fsevents_bindings.C(Fsevents_generated)
 
 module CreateFlags = C.CreateFlags
 
-module EventFlags = C.EventFlags
+module EventFlags = struct
+  include C.EventFlags
+
+  let string_of_must_scan_subdirs = function
+    | Some { user = true; kernel = true } -> "user+kernel"
+    | Some { user = true } -> "user"
+    | Some { kernel = true } -> "kernel"
+    | Some { user = false; kernel = false } -> "unknown"
+    | None -> "false"
+
+  let string_of_item_type = function
+    | None -> "false"
+    | Some File -> "file"
+    | Some Dir -> "dir"
+    | Some Symlink -> "symlink"
+    | Some Hardlink -> "hardlink"
+
+  let to_string t =
+    Printf.sprintf
+      "{\n  must_scan_subdirs     = %s;\
+        \n  event_ids_wrapped     = %b;\
+        \n  history_done          = %b;\
+        \n  root_changed          = %b;\
+        \n  mount                 = %b;\
+        \n  unmount               = %b;\
+        \n  own_event             = %b;\
+        \n  item_created          = %b;\
+        \n  item_removed          = %b;\
+        \n  item_inode_meta_mod   = %b;\
+        \n  item_renamed          = %b;\
+        \n  item_modified         = %b;\
+        \n  item_finder_info_mod  = %b;\
+        \n  item_change_owner     = %b;\
+        \n  item_xattr_mod        = %b;\
+        \n  item_type             = %s;\
+        \n  item_is_last_hardlink = %b;\
+        \n}"
+      (string_of_must_scan_subdirs t.must_scan_subdirs)
+      t.event_ids_wrapped
+      t.history_done
+      t.root_changed
+      t.mount
+      t.unmount
+      t.own_event
+      t.item_created
+      t.item_removed
+      t.item_inode_meta_mod
+      t.item_renamed
+      t.item_modified
+      t.item_finder_info_mod
+      t.item_change_owner
+      t.item_xattr_mod
+      (string_of_item_type t.item_type)
+      t.item_is_last_hardlink
+
+end
 
 type t = C.t
 

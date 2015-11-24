@@ -60,6 +60,8 @@ module EventFlags : sig
     item_is_last_hardlink: bool;
   }
 
+  val to_string : t -> string
+
 end
 
 type t
