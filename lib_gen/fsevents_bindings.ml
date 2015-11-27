@@ -59,7 +59,7 @@ module C(F: Cstubs.FOREIGN) = struct
       use_cf_types = false;
       no_defer = true;
       watch_root = true;
-      ignore_self = true;
+      ignore_self = false;
       file_events = true;
       mark_self = false;
     }
