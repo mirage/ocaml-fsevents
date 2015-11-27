@@ -33,6 +33,8 @@ module C(F: Cstubs.FOREIGN) = struct
   (* typedef struct __FSEventStream* FSEventStreamRef; *)
   let typ : t typ = typedef (ptr void) "FSEventStreamRef"
 
+  let const_typ : t typ = typedef typ "ConstFSEventStreamRef"
+
   module CreateFlags = struct
 
     open Type.CreateFlags
@@ -288,7 +290,7 @@ module C(F: Cstubs.FOREIGN) = struct
     *)
     let cstring_typ =
       Foreign.funptr ~runtime_lock:true ~name:"FSEventStreamCallback" (
-        typedef typ "ConstFSEventStreamRef" @->
+        const_typ @->
         ptr void @->
         size_t @->
         void_string_typ @->
@@ -324,6 +326,8 @@ module C(F: Cstubs.FOREIGN) = struct
   end
 
   module PathList = Cf.Array.List.Make(Cf.String.String)
+  module ReleasedString = Cf.Released(Cf.String.String)
+  module ReleasedPathList = Cf.Released(Cf.Array.List.Make(ReleasedString))
 
   (* extern FSEventStreamRef FSEventStreamCreate(
        CFAllocatorRef allocator,
@@ -342,7 +346,7 @@ module C(F: Cstubs.FOREIGN) = struct
     EventId.typ @->
     Cf.TimeInterval.typ @->
     CreateFlags.typ @->
-    returning typ
+    returning (Cf.Type.released typ)
   )
 
   (* extern void FSEventStreamScheduleWithRunLoop(
@@ -363,5 +367,13 @@ module C(F: Cstubs.FOREIGN) = struct
   let start = F.foreign "FSEventStreamStart" (
     typ @-> returning bool
   )
+
+  (* extern CF_RETURNS_RETAINED CFArrayRef FSEventStreamCopyPathsBeingWatched(
+       ConstFSEventStreamRef streamRef
+     ); *)
+  let copy_paths_being_watched =
+    F.foreign "FSEventStreamCopyPathsBeingWatched" (
+      const_typ @-> returning ReleasedPathList.typ
+    )
 
 end

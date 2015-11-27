@@ -86,10 +86,10 @@ type callback = C.Callback.t
 
 let watch latency flags f paths =
   let f = C.Callback.to_cstring_typ f in
-  let cf = C.create None f None paths C.EventId.Now latency flags in
-  Gc.finalise Cf.Type.release cf;
-  cf
+  C.create None f None paths C.EventId.Now latency flags
 
 let schedule_with_run_loop = C.schedule_with_run_loop
 
 let start = C.start
+
+let copy_paths_being_watched = C.copy_paths_being_watched

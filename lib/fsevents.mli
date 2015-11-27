@@ -73,3 +73,5 @@ val watch : float -> CreateFlags.t -> callback -> string list -> t
 val schedule_with_run_loop : t -> Cf.RunLoop.t -> Cf.RunLoop.Mode.t -> unit
 
 val start : t -> bool
+
+val copy_paths_being_watched : t -> string list
