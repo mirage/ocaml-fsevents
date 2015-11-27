@@ -62,6 +62,9 @@ module EventFlags : sig
 
   val to_string : t -> string
 
+  val to_string_one_line : t -> string
+
+  val zero : t
 end
 
 type t

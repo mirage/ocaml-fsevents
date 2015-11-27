@@ -78,6 +78,52 @@ module EventFlags = struct
       (string_of_item_type t.item_type)
       t.item_is_last_hardlink
 
+  let to_string_one_line t =
+    Printf.sprintf "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
+      (match t.must_scan_subdirs with
+       | None -> ""
+       | Some v ->
+         "MustScanSubdirs("^(string_of_must_scan_subdirs (Some v))^") "
+      )
+      (if t.event_ids_wrapped then "EventIdsWrapped " else "")
+      (if t.history_done then "HistoryDone " else "")
+      (if t.root_changed then "RootChanged " else "")
+      (if t.mount then "Mount " else "")
+      (if t.unmount then "Unmount " else "")
+      (if t.own_event then "OwnEvent " else "")
+      (if t.item_created then "ItemCreated " else "")
+      (if t.item_removed then "ItemRemoved " else "")
+      (if t.item_inode_meta_mod then "ItemInodeMetaMod " else "")
+      (if t.item_renamed then "ItemRenamed " else "")
+      (if t.item_modified then "ItemModified " else "")
+      (if t.item_finder_info_mod then "ItemFinderInfoMod " else "")
+      (if t.item_change_owner then "ItemChangeOwner " else "")
+      (if t.item_xattr_mod then "ItemXattrMod" else "")
+      (match t.item_type with
+       | None -> ""
+       | Some v -> "ItemType("^(string_of_item_type (Some v))^") "
+      )
+      (if t.item_is_last_hardlink then "ItemIsLastHardlink " else "")
+
+  let zero = {
+    must_scan_subdirs = None;
+    event_ids_wrapped = false;
+    history_done = false;
+    root_changed = false;
+    mount = false;
+    unmount = false;
+    own_event = false;
+    item_created = false;
+    item_removed = false;
+    item_inode_meta_mod = false;
+    item_renamed = false;
+    item_modified = false;
+    item_finder_info_mod = false;
+    item_change_owner = false;
+    item_xattr_mod = false;
+    item_type = None;
+    item_is_last_hardlink = false;
+  }
 end
 
 type t = C.t
