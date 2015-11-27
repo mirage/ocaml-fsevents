@@ -29,8 +29,8 @@ type t = {
 let watch latency flags paths =
   let stream, push = Lwt_stream.create () in
   let import path flags id = Lwt_preemptive.run_in_main (fun () ->
-      push (Some { path; flags; id; });
-      Lwt.return_unit
-    ) in
+    push (Some { path; flags; id; });
+    Lwt.return_unit
+  ) in
   let event_stream = Fsevents.watch latency flags import paths in
   { stream; event_stream }
