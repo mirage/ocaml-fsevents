@@ -21,9 +21,20 @@ type event = {
   id    : int64;
 }
 
-type t = {
-  stream : event Lwt_stream.t;
-  event_stream : Fsevents.t;
-}
+type t
 
 val watch : float -> Fsevents.CreateFlags.t -> string list -> t
+
+val start : t -> bool
+
+val schedule_with_run_loop : t -> Cf.RunLoop.t -> Cf.RunLoop.Mode.t -> unit
+
+val stream : t -> event Lwt_stream.t
+
+val event_stream : t -> Fsevents.t
+
+val flush : t -> unit Lwt.t
+
+val stop : t -> unit
+
+val invalidate : t -> unit

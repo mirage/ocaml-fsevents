@@ -23,6 +23,7 @@ type event = {
 
 type t = {
   stream : event Lwt_stream.t;
+  push : event option -> unit;
   event_stream : Fsevents.t;
 }
 
@@ -33,4 +34,24 @@ let watch latency flags paths =
     Lwt.return_unit
   ) in
   let event_stream = Fsevents.watch latency flags import paths in
-  { stream; event_stream }
+  { stream; push; event_stream }
+
+let start { event_stream } = Fsevents.start event_stream
+
+let schedule_with_run_loop { event_stream } =
+  Fsevents.schedule_with_run_loop event_stream
+
+let stream { stream } = stream
+
+let event_stream { event_stream } = event_stream
+
+let flush { event_stream } =
+  Lwt_preemptive.detach (fun event_stream ->
+    Fsevents.flush_sync event_stream
+  ) event_stream
+
+let stop { event_stream } = Fsevents.stop event_stream
+
+let invalidate { event_stream; push } =
+  Fsevents.invalidate event_stream;
+  push None
