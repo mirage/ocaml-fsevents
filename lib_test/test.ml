@@ -50,15 +50,14 @@ let with_temp_stream f () =
   let tmp = ensuredir (Unix.getcwd () / "tmp") in
   let dir = mktmpdir_under tmp in
   let watcher = Fsevents_lwt.watch 0. create_flags [dir] in
-  let { Fsevents_lwt.event_stream; stream; } = watcher in
   Lwt.(async (fun () ->
     Cf_lwt.RunLoop.run_thread (fun runloop ->
-      Fsevents.schedule_with_run_loop event_stream runloop run_loop_mode;
-      if not (Fsevents.start event_stream)
+      Fsevents_lwt.schedule_with_run_loop watcher runloop run_loop_mode;
+      if not (Fsevents_lwt.start watcher)
       then print_endline "failed to start FSEvents stream"
     )
   ));
-  Lwt_main.run (f dir stream);
+  Lwt_main.run Lwt.(f dir >>= fun f -> f watcher);
   Unix.(match system ("rm -r "^dir) with
     | WEXITED 0 -> ()
     | _ -> Alcotest.fail "couldn't delete test dir"
@@ -71,7 +70,9 @@ module Event = struct
 
   type t =
     | DirType of t
+    | FileType of t
     | Create of string
+    | Remove of string
 
   let fail_event remaining event_type =
     Alcotest.fail
@@ -85,10 +86,21 @@ module Event = struct
       { remaining with flags = { remaining.flags with item_created = false } }
     else fail_event remaining "ItemCreated"
 
+  let has_remove remaining =
+    if remaining.flags.item_removed
+    then
+      { remaining with flags = { remaining.flags with item_removed = false } }
+    else fail_event remaining "ItemRemoved"
+
   let has_dir_type remaining = match remaining.flags.item_type with
     | Some Dir ->
       { remaining with flags = { remaining.flags with item_type = None } }
     | _ -> fail_event remaining "ItemType(Dir)"
+
+  let has_file_type remaining = match remaining.flags.item_type with
+    | Some File ->
+      { remaining with flags = { remaining.flags with item_type = None } }
+    | _ -> fail_event remaining "ItemType(File)"
 
   let check_path { path; flags } expected_path =
     if expected_path = path
@@ -100,10 +112,28 @@ module Event = struct
 
   let rec check_one remaining = function
     | Create path -> check_path remaining path; has_create remaining
+    | Remove path -> check_path remaining path; has_remove remaining
     | DirType n -> check_one (has_dir_type remaining) n
+    | FileType n -> check_one (has_file_type remaining) n
+
+  let end_of_stream stream =
+    Lwt_stream.is_empty stream
+    >>= fun is_empty ->
+    if is_empty
+    then Lwt.return_unit
+    else
+      Lwt_stream.next stream
+      >>= fun { path; flags } ->
+      Alcotest.fail ("event stream is not empty:\n"^path^"\n"^
+                     to_string_one_line flags)
 
   let rec check ?remaining stream = function
-    | [] -> Lwt.return_unit
+    | [] ->
+      (match remaining with
+       | Some { flags } when flags = zero -> end_of_stream stream
+       | Some event -> fail_event event "no"
+       | None -> end_of_stream stream
+      )
     | first::rest ->
       (match remaining with
        | Some { flags } when flags = zero -> Lwt_stream.next stream
@@ -111,20 +141,44 @@ module Event = struct
        | None -> Lwt_stream.next stream
       ) >>= fun remaining ->
       check ~remaining:(check_one remaining first) stream rest
+
+  let expect events watcher =
+    Lwt_unix.sleep 0.020
+    >>= fun () ->
+    Fsevents_lwt.flush watcher
+    >>= fun () ->
+    Fsevents_lwt.stop watcher;
+    Fsevents_lwt.invalidate watcher;
+    let stream = Fsevents_lwt.stream watcher in
+    check stream events
+
 end
 
 module FileMod = struct
   open Lwt
 
-  let create dir stream =
+  let create dir =
     let path = dir / "create_file_test" in
     Lwt_unix.(openfile path [O_CREAT] 0o600)
     >>= fun fd ->
     Lwt_unix.close fd
     >>= fun () ->
-    Event.(check stream [DirType (Create dir); Create path])
+    return Event.(expect [
+      DirType (Create dir); FileType (Create path);
+    ])
 
-  let create_delete dir stream = Lwt.return_unit
+  let create_delete dir =
+    let file = "create_file_test" in
+    let path = dir / file in
+    Lwt_unix.(openfile path [O_CREAT] 0o600)
+    >>= fun fd ->
+    Lwt_unix.close fd
+    >>= fun () ->
+    Lwt_unix.unlink path
+    >>= fun () ->
+    return Event.(expect [
+      DirType (Create dir); FileType (Create path); Remove path;
+    ])
 
   let tests = [
     "create",        `Quick, with_temp_stream create;
