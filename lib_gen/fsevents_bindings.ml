@@ -368,6 +368,27 @@ module C(F: Cstubs.FOREIGN) = struct
     typ @-> returning bool
   )
 
+  (* extern void FSEventStreamFlushSync(
+       FSEventStreamRef streamRef
+     ); *)
+  let flush_sync = F.foreign "FSEventStreamFlushSync" (
+    typ @-> returning void
+  )
+
+  (* extern void FSEventStreamStop(
+       FSEventStreamRef streamRef
+     ); *)
+  let stop = F.foreign "FSEventStreamStop" (
+    typ @-> returning void
+  )
+
+  (* extern void FSEventStreamInvalidate(
+       FSEventStreamRef streamRef
+     ); *)
+  let invalidate = F.foreign "FSEventStreamInvalidate" (
+    typ @-> returning void
+  )
+
   (* extern CF_RETURNS_RETAINED CFArrayRef FSEventStreamCopyPathsBeingWatched(
        ConstFSEventStreamRef streamRef
      ); *)

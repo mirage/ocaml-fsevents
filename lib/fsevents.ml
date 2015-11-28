@@ -138,4 +138,10 @@ let schedule_with_run_loop = C.schedule_with_run_loop
 
 let start = C.start
 
+let flush_sync = C.flush_sync
+
+let stop = C.stop
+
+let invalidate = C.invalidate
+
 let copy_paths_being_watched = C.copy_paths_being_watched
