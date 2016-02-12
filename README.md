@@ -5,3 +5,7 @@ This package relies on
 support. These bindings use
 [ctypes](https://github.com/ocamllabs/ocaml-ctypes) for type-safe stub
 generation.
+
+### FSEvents Quirks
+
+`chmod` will result in an `ItemChangeOwner` event.
