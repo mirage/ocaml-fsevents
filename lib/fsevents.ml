@@ -126,22 +126,32 @@ module EventFlags = struct
   }
 end
 
-type t = C.t
+type t = {
+  stream : C.t;
+  callback :
+    C.t ->
+    unit Ctypes_static.ptr ->
+    Unsigned.size_t ->
+    string Ctypes.ptr ->
+    C.EventFlags.t Ctypes.ptr ->
+    Unsigned.uint64 Ctypes.ptr -> unit
+}
 
 type callback = C.Callback.t
 
 let watch latency flags f paths =
-  let f = C.Callback.to_cstring_typ f in
-  C.create None f None paths C.EventId.Now latency flags
+  let callback = C.Callback.to_cstring_typ f in
+  let stream = C.create None callback None paths C.EventId.Now latency flags in
+  { stream; callback }
 
-let schedule_with_run_loop = C.schedule_with_run_loop
+let schedule_with_run_loop { stream } = C.schedule_with_run_loop stream
 
-let start = C.start
+let start { stream } = C.start stream
 
-let flush_sync = C.flush_sync
+let flush_sync { stream } = C.flush_sync stream
 
-let stop = C.stop
+let stop { stream } = C.stop stream
 
-let invalidate = C.invalidate
+let invalidate { stream } = C.invalidate stream
 
-let copy_paths_being_watched = C.copy_paths_being_watched
+let copy_paths_being_watched { stream } = C.copy_paths_being_watched stream
