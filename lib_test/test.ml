@@ -46,18 +46,60 @@ let ensuredir dir =
   try Unix.mkdir dir 0o700; dir
   with Unix.Unix_error (Unix.EEXIST, _, _) -> dir
 
+let callback activity =
+  print_endline (Cf.RunLoop.Observer.Activity.to_string activity)
+
 let with_temp_stream f () =
   let tmp = ensuredir (Unix.getcwd () / "tmp") in
   let dir = mktmpdir_under tmp in
   let watcher = Fsevents_lwt.watch 0. create_flags [dir] in
+  let after_runloop, runloop_done = Lwt.wait () in
+  let wref = ref (Some watcher) in
+  let rlref = ref None in
+  print_endline "before async";
   Lwt.(async (fun () ->
+    print_endline "before run_thread";
     Cf_lwt.RunLoop.run_thread (fun runloop ->
+      let observer = Cf.RunLoop.Observer.(create Activity.All callback) in
+      Cf.RunLoop.(add_observer runloop observer Mode.Default);
       Fsevents_lwt.schedule_with_run_loop watcher runloop run_loop_mode;
-      if not (Fsevents_lwt.start watcher)
-      then print_endline "failed to start FSEvents stream"
-    )
+      begin
+        if not (Fsevents_lwt.start watcher)
+        then print_endline "failed to start FSEvents stream"
+      end;
+      rlref := Some runloop;
+      print_endline "fsevents scheduled";
+    ) >>= fun () ->
+
+    Lwt.wakeup runloop_done ();
+    Lwt.return_unit
   ));
-  Lwt_main.run Lwt.(f dir >>= fun f -> f watcher);
+
+  print_endline "before first gc";
+  Gc.full_major ();
+  print_endline "after first gc";
+
+  Lwt_main.run Lwt.(
+    f dir
+    >>= fun f ->
+    f watcher
+    >>= fun () ->
+    print_endline "before early gc";
+    Gc.full_major ();
+    print_endline "after early gc";
+    begin match !rlref with
+      | None -> ()
+      | Some runloop ->
+        Cf.RunLoop.stop runloop;
+        Cf.RunLoop.release runloop
+    end;
+    after_runloop
+  );
+  print_endline "before gc";
+  Gc.full_major ();
+  print_endline "after gc";
+
+  wref := None;
   Unix.(match system ("rm -r "^dir) with
     | WEXITED 0 -> ()
     | _ -> Alcotest.fail "couldn't delete test dir"
@@ -73,6 +115,9 @@ module Event = struct
     | FileType of t
     | Create of string
     | Remove of string
+    | Modify of string
+    | MetaModify of string
+    | ChangeOwner of string
 
   let fail_event remaining event_type =
     Alcotest.fail
@@ -91,6 +136,28 @@ module Event = struct
     then
       { remaining with flags = { remaining.flags with item_removed = false } }
     else fail_event remaining "ItemRemoved"
+
+  let has_modify remaining =
+    if remaining.flags.item_modified
+    then
+      { remaining with flags = { remaining.flags with item_modified = false } }
+    else fail_event remaining "ItemModified"
+
+  let has_meta_modify remaining =
+    if remaining.flags.item_inode_meta_mod
+    then
+      { remaining with flags = {
+          remaining.flags with item_inode_meta_mod = false
+        } }
+    else fail_event remaining "ItemInodeMetaMod"
+
+  let has_change_owner remaining =
+    if remaining.flags.item_change_owner
+    then
+      { remaining with flags = {
+          remaining.flags with item_change_owner = false
+        } }
+    else fail_event remaining "ItemChangeOwner"
 
   let has_dir_type remaining = match remaining.flags.item_type with
     | Some Dir ->
@@ -113,6 +180,9 @@ module Event = struct
   let rec check_one remaining = function
     | Create path -> check_path remaining path; has_create remaining
     | Remove path -> check_path remaining path; has_remove remaining
+    | Modify path -> check_path remaining path; has_modify remaining
+    | MetaModify path -> check_path remaining path; has_meta_modify remaining
+    | ChangeOwner path -> check_path remaining path; has_change_owner remaining
     | DirType n -> check_one (has_dir_type remaining) n
     | FileType n -> check_one (has_file_type remaining) n
 
@@ -143,10 +213,13 @@ module Event = struct
       check ~remaining:(check_one remaining first) stream rest
 
   let expect events watcher =
+    print_endline "before sleep";
     Lwt_unix.sleep 0.020
     >>= fun () ->
+    print_endline "before flush";
     Fsevents_lwt.flush watcher
     >>= fun () ->
+    print_endline "before stop";
     Fsevents_lwt.stop watcher;
     Fsevents_lwt.invalidate watcher;
     let stream = Fsevents_lwt.stream watcher in
@@ -156,6 +229,12 @@ end
 
 module FileMod = struct
   open Lwt
+
+  let noop dir =
+    print_endline "in noop";
+    return Event.(expect [
+      DirType (Create dir);
+    ])
 
   let create dir =
     let path = dir / "create_file_test" in
@@ -167,8 +246,8 @@ module FileMod = struct
       DirType (Create dir); FileType (Create path);
     ])
 
-  let create_delete dir =
-    let file = "create_file_test" in
+  let create_remove dir =
+    let file = "create_remove_file_test" in
     let path = dir / file in
     Lwt_unix.(openfile path [O_CREAT] 0o600)
     >>= fun fd ->
@@ -180,9 +259,40 @@ module FileMod = struct
       DirType (Create dir); FileType (Create path); Remove path;
     ])
 
+  let modify dir =
+    let file = "modify_file_test" in
+    let path = dir / file in
+    Lwt_unix.(openfile path [O_CREAT; O_WRONLY] 0o600)
+    >>= fun fd ->
+    Lwt_unix.write fd (Bytes.of_string file) 0 (String.length file)
+    >>= fun _written ->
+    Lwt_unix.close fd
+    >>= fun () ->
+    return Event.(expect [
+      DirType (Create dir); FileType (Create path); Modify path;
+    ])
+
+  let chmod dir =
+    Lwt_unix.chmod dir 0o750
+    >>= fun () ->
+    return Event.(expect [
+      DirType (Create dir); ChangeOwner dir;
+    ])
+
   let tests = [
+    "noop0",          `Quick, with_temp_stream noop;
+    "noop1",          `Quick, with_temp_stream noop;
+    "noop2",          `Quick, with_temp_stream noop;
+    "noop3",          `Quick, with_temp_stream noop;
+    "noop4",          `Quick, with_temp_stream noop;
+    "noop5",          `Quick, with_temp_stream noop;
+    "noop6",          `Quick, with_temp_stream noop;
+
     "create",        `Quick, with_temp_stream create;
-    "create_delete", `Quick, with_temp_stream create_delete;
+    "create_remove", `Quick, with_temp_stream create_remove;
+    "modify",        `Quick, with_temp_stream modify;
+    (*"chmod",         `Quick, with_temp_stream chmod;*)
+    (*"modify_noop",   `Quick, with_temp_stream modify_noop;*)
   ]
 end
 
