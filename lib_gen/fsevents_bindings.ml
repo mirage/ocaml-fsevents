@@ -326,8 +326,6 @@ module C(F: Cstubs.FOREIGN) = struct
   end
 
   module PathList = Cf.Array.List.Make(Cf.String.String)
-  module ReleasedString = Cf.Released(Cf.String.String)
-  module ReleasedPathList = Cf.Released(Cf.Array.List.Make(ReleasedString))
 
   (* extern FSEventStreamRef FSEventStreamCreate(
        CFAllocatorRef allocator,
@@ -346,7 +344,7 @@ module C(F: Cstubs.FOREIGN) = struct
     EventId.typ @->
     Cf.TimeInterval.typ @->
     CreateFlags.typ @->
-    returning (Cf.Type.released typ)
+    returning typ
   )
 
   (* extern void FSEventStreamScheduleWithRunLoop(
@@ -394,7 +392,7 @@ module C(F: Cstubs.FOREIGN) = struct
      ); *)
   let copy_paths_being_watched =
     F.foreign "FSEventStreamCopyPathsBeingWatched" (
-      const_typ @-> returning ReleasedPathList.typ
+      const_typ @-> returning PathList.typ
     )
 
 end
