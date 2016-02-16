@@ -80,21 +80,19 @@ let with_temp_stream f () =
   print_endline "after first gc";
 
   Lwt_main.run Lwt.(
-    f dir
-    >>= fun f ->
-    f watcher
-    >>= fun () ->
-    print_endline "before early gc";
-    Gc.full_major ();
-    print_endline "after early gc";
-    begin match !rlref with
-      | None -> ()
-      | Some runloop ->
-        Cf.RunLoop.stop runloop;
-        Cf.RunLoop.release runloop
-    end;
-    after_runloop
-  );
+      f dir
+      >>= fun f ->
+      f watcher
+      >>= fun () ->
+      print_endline "before early gc";
+      Gc.full_major ();
+      print_endline "after early gc";
+      begin match !rlref with
+        | None -> ()
+        | Some runloop -> Cf.RunLoop.stop runloop
+      end;
+      after_runloop
+    );
   print_endline "before gc";
   Gc.full_major ();
   print_endline "after gc";
