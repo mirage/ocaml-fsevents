@@ -126,6 +126,8 @@ module EventFlags = struct
   }
 end
 
+module EventId = C.EventId
+
 type t = {
   stream : C.t;
   callback :
@@ -143,6 +145,8 @@ let watch latency flags f paths =
   let callback = C.Callback.to_cstring_typ f in
   let stream = C.create None callback None paths C.EventId.Now latency flags in
   { stream; callback }
+
+let get_latest_event_id { stream } = C.get_latest_event_id stream
 
 let schedule_with_run_loop { stream } = C.schedule_with_run_loop stream
 

@@ -67,11 +67,25 @@ module EventFlags : sig
   val zero : t
 end
 
+module EventId : sig
+  type t =
+    | Now
+    | Since of Unsigned.UInt64.t
+
+  val of_uint64 : Unsigned.UInt64.t -> t
+
+  val to_uint64 : t -> Unsigned.UInt64.t
+
+  val typ : t Ctypes.typ
+end
+
 type t
 
 type callback = string -> EventFlags.t -> int64 -> unit
 
 val watch : float -> CreateFlags.t -> callback -> string list -> t
+
+val get_latest_event_id : t -> EventId.t
 
 val schedule_with_run_loop : t -> Cf.RunLoop.t -> Cf.RunLoop.Mode.t -> unit
 

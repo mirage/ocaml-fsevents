@@ -256,16 +256,16 @@ module C(F: Cstubs.FOREIGN) = struct
 
     type t =
       | Now
-      | Since of int64
+      | Since of Unsigned.UInt64.t
 
     let of_uint64 i =
       if i = Type.EventId.since_now
       then Now
-      else Since (Unsigned.UInt64.to_int64 i)
+      else Since i
 
     let to_uint64 = function
       | Now -> Type.EventId.since_now
-      | Since i -> Unsigned.UInt64.of_int64 i
+      | Since i -> i
 
     let typ = view ~read:of_uint64 ~write:to_uint64 Type.EventId.t
 
@@ -345,6 +345,13 @@ module C(F: Cstubs.FOREIGN) = struct
     Cf.TimeInterval.typ @->
     CreateFlags.typ @->
     returning typ
+  )
+
+  (* extern FSEventStreamEventId FSEventStreamGetLatestEventId(
+       ConstFSEventStreamRef streamRef
+     ); *)
+  let get_latest_event_id = F.foreign "FSEventStreamGetLatestEventId" (
+    typ @-> returning EventId.typ
   )
 
   (* extern void FSEventStreamScheduleWithRunLoop(
