@@ -83,7 +83,8 @@ type t
 
 type callback = string -> EventFlags.t -> int64 -> unit
 
-val watch : float -> CreateFlags.t -> callback -> string list -> t
+val create :
+  ?since:EventId.t -> float -> CreateFlags.t -> callback -> string list -> t
 
 val get_latest_event_id : t -> EventId.t
 

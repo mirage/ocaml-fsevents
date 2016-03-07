@@ -23,7 +23,9 @@ type event = {
 
 type t
 
-val watch : float -> Fsevents.CreateFlags.t -> string list -> t
+val create :
+  ?since:Fsevents.EventId.t ->
+  float -> Fsevents.CreateFlags.t -> string list -> t
 
 val start : t -> bool
 

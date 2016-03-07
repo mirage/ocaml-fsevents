@@ -141,9 +141,9 @@ type t = {
 
 type callback = C.Callback.t
 
-let watch latency flags f paths =
+let create ?(since=EventId.Now) latency flags f paths =
   let callback = C.Callback.to_cstring_typ f in
-  let stream = C.create None callback None paths C.EventId.Now latency flags in
+  let stream = C.create None callback None paths since latency flags in
   { stream; callback }
 
 let get_latest_event_id { stream } = C.get_latest_event_id stream

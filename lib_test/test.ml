@@ -53,7 +53,7 @@ let with_temp_stream f () =
   let open Lwt.Infix in
   let tmp = ensuredir (Unix.getcwd () / "tmp") in
   let dir = mktmpdir_under tmp in
-  let watcher = Fsevents_lwt.watch 0. create_flags [dir] in
+  let watcher = Fsevents_lwt.create 0. create_flags [dir] in
   let after_runloop, runloop_done = Lwt.wait () in
   let exit_cb _exit =
     Lwt_preemptive.run_in_main (fun () ->
