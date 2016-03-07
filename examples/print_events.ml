@@ -19,9 +19,10 @@ let create_flags = Fsevents.CreateFlags.detailed_interactive
 
 let run_loop_mode = Cf.RunLoop.Mode.Default
 
-let watcher = Fsevents_lwt.watch 0. create_flags ["."]
+let watcher = Fsevents_lwt.create 0. create_flags ["."]
 
-let { Fsevents_lwt.event_stream; stream; } = watcher
+let stream = Fsevents_lwt.stream watcher
+let event_stream = Fsevents_lwt.event_stream watcher
 
 let string_of_event { Fsevents_lwt.path; flags } =
   path^"\n"^(Fsevents.EventFlags.to_string flags)
