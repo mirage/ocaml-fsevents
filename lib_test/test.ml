@@ -50,54 +50,38 @@ let callback activity =
   print_endline (Cf.RunLoop.Observer.Activity.to_string activity)
 
 let with_temp_stream f () =
+  let open Lwt.Infix in
   let tmp = ensuredir (Unix.getcwd () / "tmp") in
   let dir = mktmpdir_under tmp in
   let watcher = Fsevents_lwt.watch 0. create_flags [dir] in
   let after_runloop, runloop_done = Lwt.wait () in
-  let wref = ref (Some watcher) in
-  let rlref = ref None in
-  print_endline "before async";
-  Lwt.(async (fun () ->
-    print_endline "before run_thread";
-    Cf_lwt.RunLoop.run_thread (fun runloop ->
-      let observer = Cf.RunLoop.Observer.(create Activity.All callback) in
-      Cf.RunLoop.(add_observer runloop observer Mode.Default);
-      Fsevents_lwt.schedule_with_run_loop watcher runloop run_loop_mode;
-      begin
-        if not (Fsevents_lwt.start watcher)
-        then print_endline "failed to start FSEvents stream"
-      end;
-      rlref := Some runloop;
-      print_endline "fsevents scheduled";
-    ) >>= fun () ->
+  let exit_cb _exit =
+    Lwt_preemptive.run_in_main (fun () ->
+      Lwt.return (Lwt.wakeup runloop_done ())
+    ) in
+  let lwt = Cf_lwt.RunLoop.run_thread (fun runloop ->
+    let observer = Cf.RunLoop.Observer.(create Activity.All callback) in
+    let stop_observer =
+      Cf.RunLoop.Observer.(create Activity.(Only [Exit]) exit_cb)
+    in
+    Cf.RunLoop.(add_observer runloop observer Mode.Default);
+    Cf.RunLoop.(add_observer runloop stop_observer Mode.Default);
+    Fsevents_lwt.schedule_with_run_loop watcher runloop run_loop_mode;
+    begin
+      if not (Fsevents_lwt.start watcher)
+      then print_endline "failed to start FSEvents stream"
+    end;
+  ) >>= fun runloop ->
+    f dir
+    >>= fun f ->
+    f watcher
+    >>= fun () ->
+    Cf.RunLoop.stop runloop;
+    after_runloop
+  in
 
-    Lwt.wakeup runloop_done ();
-    Lwt.return_unit
-  ));
+  Lwt_main.run lwt;
 
-  print_endline "before first gc";
-  Gc.full_major ();
-  print_endline "after first gc";
-
-  Lwt_main.run Lwt.(
-      f dir
-      >>= fun f ->
-      f watcher
-      >>= fun () ->
-      print_endline "before early gc";
-      Gc.full_major ();
-      print_endline "after early gc";
-      begin match !rlref with
-        | None -> ()
-        | Some runloop -> Cf.RunLoop.stop runloop
-      end;
-      after_runloop
-    );
-  print_endline "before gc";
-  Gc.full_major ();
-  print_endline "after gc";
-
-  wref := None;
   Unix.(match system ("rm -r "^dir) with
     | WEXITED 0 -> ()
     | _ -> Alcotest.fail "couldn't delete test dir"
@@ -211,13 +195,10 @@ module Event = struct
       check ~remaining:(check_one remaining first) stream rest
 
   let expect events watcher =
-    print_endline "before sleep";
     Lwt_unix.sleep 0.020
     >>= fun () ->
-    print_endline "before flush";
     Fsevents_lwt.flush watcher
     >>= fun () ->
-    print_endline "before stop";
     Fsevents_lwt.stop watcher;
     Fsevents_lwt.invalidate watcher;
     let stream = Fsevents_lwt.stream watcher in
@@ -229,7 +210,6 @@ module FileMod = struct
   open Lwt
 
   let noop dir =
-    print_endline "in noop";
     return Event.(expect [
       DirType (Create dir);
     ])
