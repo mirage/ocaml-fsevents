@@ -65,12 +65,16 @@ dispatch begin
     dep ["ocaml"; "link"; "byte"; "library"; "use_fsevents_stubs"]
       ["lib/dllfsevents_stubs"-.-(!Options.ext_dll)];
     flag ["ocaml"; "link"; "byte"; "library"; "use_fsevents_stubs"] &
-      S[A"-dllib"; A"-lfsevents_stubs"];
+    S[A"-dllib"; A"-lfsevents_stubs";
+      A"-cclib"; A"-framework"; A"-cclib"; A"CoreServices";
+     ];
 
     dep ["ocaml"; "link"; "native"; "library"; "use_fsevents_stubs"]
       ["lib/libfsevents_stubs"-.-(!Options.ext_lib)];
     flag ["ocaml"; "link"; "native"; "library"; "use_fsevents_stubs"] &
-      S[A"-cclib"; A"-lfsevents_stubs"];
+    S[A"-cclib"; A"-lfsevents_stubs";
+      A"-cclib"; A"-framework"; A"-cclib"; A"CoreServices";
+     ];
 
     (* Linking tests *)
     flag ["ocaml"; "link"; "byte"; "program"; "use_fsevents_stubs"] &
