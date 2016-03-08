@@ -273,7 +273,7 @@ module C(F: Cstubs.FOREIGN) = struct
 
   module Callback = struct
 
-    type t = string -> EventFlags.t -> int64 -> unit
+    type t = string -> EventFlags.t -> EventId.t -> unit
 
     let void_string_typ = view
         ~read:(coerce (ptr void) (ptr string))
@@ -305,7 +305,7 @@ module C(F: Cstubs.FOREIGN) = struct
       let flags = CArray.from_ptr flags n in
       let ids   = CArray.from_ptr ids   n in
       for i = 0 to n - 1 do
-        let id = Unsigned.UInt64.to_int64 (CArray.get ids i) in
+        let id = EventId.of_uint64 (CArray.get ids i) in
         fn (CArray.get paths i) (CArray.get flags i) id
       done
 

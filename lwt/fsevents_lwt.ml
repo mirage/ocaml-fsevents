@@ -18,7 +18,7 @@
 type event = {
   path  : string;
   flags : Fsevents.EventFlags.t;
-  id    : int64;
+  id    : Fsevents.EventId.t;
 }
 
 type t = {
@@ -36,6 +36,9 @@ let create ?since latency flags paths =
   let event_stream = Fsevents.create ?since latency flags import paths in
   { stream; push; event_stream }
 
+let get_latest_event_id { event_stream } =
+  Fsevents.get_latest_event_id event_stream
+
 let start { event_stream } = Fsevents.start event_stream
 
 let schedule_with_run_loop { event_stream } =
@@ -46,9 +49,7 @@ let stream { stream } = stream
 let event_stream { event_stream } = event_stream
 
 let flush { event_stream } =
-  Lwt_preemptive.detach (fun event_stream ->
-    Fsevents.flush_sync event_stream
-  ) event_stream
+  Lwt_preemptive.detach Fsevents.flush_sync event_stream
 
 let stop { event_stream } = Fsevents.stop event_stream
 

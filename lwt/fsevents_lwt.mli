@@ -18,7 +18,7 @@
 type event = {
   path  : string;
   flags : Fsevents.EventFlags.t;
-  id    : int64;
+  id    : Fsevents.EventId.t;
 }
 
 type t
@@ -26,6 +26,8 @@ type t
 val create :
   ?since:Fsevents.EventId.t ->
   float -> Fsevents.CreateFlags.t -> string list -> t
+
+val get_latest_event_id : t -> Fsevents.EventId.t
 
 val start : t -> bool
 

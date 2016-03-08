@@ -87,7 +87,7 @@ end
 
 type t
 
-type callback = string -> EventFlags.t -> int64 -> unit
+type callback = string -> EventFlags.t -> EventId.t -> unit
 
 val create :
   ?since:EventId.t -> float -> CreateFlags.t -> callback -> string list -> t
