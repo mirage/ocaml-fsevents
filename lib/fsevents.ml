@@ -126,7 +126,29 @@ module EventFlags = struct
   }
 end
 
-module EventId = C.EventId
+module EventId = struct
+  include C.EventId
+
+  let min a b = match a, b with
+    | Now, _ -> b
+    | _, Now -> a
+    | Since x, Since y -> match Unsigned.UInt64.compare x y with
+      | x when x > 0 -> b
+      | _ -> a
+
+  let max a b = match a, b with
+    | Now, _ -> a
+    | _, Now -> b
+    | Since x, Since y -> match Unsigned.UInt64.compare x y with
+      | x when x < 0 -> b
+      | _ -> a
+
+  let compare a b = match a, b with
+    | Now, Now -> 0
+    | Now, Since _ -> 1
+    | Since _, Now -> -1
+    | Since a, Since b -> Unsigned.UInt64.compare a b
+end
 
 type t = {
   stream : C.t;

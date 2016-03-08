@@ -77,6 +77,12 @@ module EventId : sig
   val to_uint64 : t -> Unsigned.UInt64.t
 
   val typ : t Ctypes.typ
+
+  val min : t -> t -> t
+
+  val max : t -> t -> t
+
+  val compare : t -> t -> int
 end
 
 type t
