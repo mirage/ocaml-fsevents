@@ -37,6 +37,12 @@ INSTALL_LWT:=$(addprefix _build/lwt/,$(INSTALL_LWT))
 INSTALL+=$(INSTALL_LWT)
 endif
 
+ARCHIVES:=_build/lib/$(MOD_NAME).a
+
+ifeq ($(WITH_LWT), 0)
+ARCHIVES+=_build/lwt/$(MOD_NAME)_lwt.a
+endif
+
 build:
 	$(OCAMLBUILD) $(PRODUCTS)
 
@@ -52,7 +58,7 @@ install:
 		$(INSTALL) \
 		-dll _build/lib/dll$(MOD_NAME)_stubs.so \
 		-nodll _build/lib/lib$(MOD_NAME)_stubs.a \
-		_build/lib/$(MOD_NAME).a
+		$(ARCHIVES)
 
 uninstall:
 	ocamlfind remove $(FINDLIB_NAME)
