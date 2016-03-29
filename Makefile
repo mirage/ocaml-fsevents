@@ -18,7 +18,7 @@ PRODUCTS=$(addprefix $(MOD_NAME),$(TARGETS)) \
 	lib$(MOD_NAME)_stubs.a dll$(MOD_NAME)_stubs.so
 
 ifeq ($(WITH_LWT), 0)
-PRODUCTS+=$(addprefix $(MOD_NAME)_lwt,$(TARGETS))
+PRODUCTS+=$(addprefix $(MOD_NAME)_lwt,$(TARGETS)) fs_events.native
 endif
 
 TYPES=.mli .cmi .cmti

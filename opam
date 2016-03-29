@@ -19,6 +19,7 @@ depends: [
   "alcotest" {test}
   "ctypes" {>= "0.4.0"}
   "osx-cf"
+  "cmdliner"
 ]
 depopts: [
   "lwt"
