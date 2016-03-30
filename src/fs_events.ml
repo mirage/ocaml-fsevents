@@ -31,8 +31,7 @@ let print_event format path flags id =
   print_endline (string_of_event format path flags id)
 
 (* TODO: termination *)
-let stream format =
-  let dir = Sys.getcwd () in
+let stream format paths =
   let create_flags = Fsevents.CreateFlags.({
     use_cf_types = false;
     no_defer = true;
@@ -41,14 +40,16 @@ let stream format =
     file_events = true;
     mark_self = false;
   }) in
-  let watcher = Fsevents.create 0. create_flags (print_event format) [dir] in
+  let watcher = Fsevents.create 0. create_flags (print_event format) paths in
   Lwt_main.run begin
     let open Lwt.Infix in
     Cf_lwt.RunLoop.run_thread (fun runloop ->
       Fsevents.schedule_with_run_loop watcher runloop Cf.RunLoop.Mode.Default;
       if not (Fsevents.start watcher)
       then
-        (Printf.eprintf "Failed to start FSEvents watcher for %s\n%!" dir;
+        let paths_s = String.concat " " paths in
+        (Printf.eprintf "Failed to start FSEvents watcher for [ %s ]\n%!"
+           paths_s;
          exit 1)
     )
     >>= fun runloop ->
@@ -64,7 +65,10 @@ let stream_cmd =
       "string", String;
     ]) String (info ~docv:"FORMAT" ["format"])))
   in
-  Term.(ret (pure stream $ format)),
+  let paths = Arg.(
+    value (pos_all file [Sys.getcwd ()] (info ~docv:"PATH" []))
+  ) in
+  Term.(ret (pure stream $ format $ paths)),
   Term.info "fsevents" ~doc
 
 ;;
