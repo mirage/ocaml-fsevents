@@ -98,7 +98,7 @@ module EventFlags = struct
       (if t.item_modified then "ItemModified " else "")
       (if t.item_finder_info_mod then "ItemFinderInfoMod " else "")
       (if t.item_change_owner then "ItemChangeOwner " else "")
-      (if t.item_xattr_mod then "ItemXattrMod" else "")
+      (if t.item_xattr_mod then "ItemXattrMod " else "")
       (match t.item_type with
        | None -> ""
        | Some v -> "ItemType("^(string_of_item_type (Some v))^") "
