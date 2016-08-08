@@ -336,7 +336,7 @@ module C(F: Cstubs.FOREIGN) = struct
        CFTimeInterval latency,
        FSEventStreamCreateFlags flags
      ); *)
-  let create = F.foreign "FSEventStreamCreate" (
+  let create = F.(foreign "FSEventStreamCreate" (
     ptr_opt void @->
     Callback.cstring_typ @->
     ptr_opt Context.typ @->
@@ -345,61 +345,61 @@ module C(F: Cstubs.FOREIGN) = struct
     Cf.TimeInterval.typ @->
     CreateFlags.typ @->
     returning typ
-  )
+  ))
 
   (* extern FSEventStreamEventId FSEventStreamGetLatestEventId(
        ConstFSEventStreamRef streamRef
      ); *)
-  let get_latest_event_id = F.foreign "FSEventStreamGetLatestEventId" (
+  let get_latest_event_id = F.(foreign "FSEventStreamGetLatestEventId" (
     typ @-> returning EventId.typ
-  )
+  ))
 
   (* extern void FSEventStreamScheduleWithRunLoop(
        FSEventStreamRef   streamRef,
        CFRunLoopRef       runLoop,
        CFStringRef        runLoopMode
      ); *)
-  let schedule_with_run_loop = F.foreign "FSEventStreamScheduleWithRunLoop" (
+  let schedule_with_run_loop = F.(foreign "FSEventStreamScheduleWithRunLoop" (
     typ @->
     Cf.RunLoop.typ @->
     Cf.RunLoop.Mode.typ @->
     returning void
-  )
+  ))
 
   (* extern Boolean FSEventStreamStart(
        FSEventStreamRef streamRef
      ); *)
-  let start = F.foreign "FSEventStreamStart" (
+  let start = F.(foreign "FSEventStreamStart" (
     typ @-> returning bool
-  )
+  ))
 
   (* extern void FSEventStreamFlushSync(
        FSEventStreamRef streamRef
      ); *)
-  let flush_sync = F.foreign "FSEventStreamFlushSync" (
+  let flush_sync = F.(foreign "FSEventStreamFlushSync" (
     typ @-> returning void
-  )
+  ))
 
   (* extern void FSEventStreamStop(
        FSEventStreamRef streamRef
      ); *)
-  let stop = F.foreign "FSEventStreamStop" (
+  let stop = F.(foreign "FSEventStreamStop" (
     typ @-> returning void
-  )
+  ))
 
   (* extern void FSEventStreamInvalidate(
        FSEventStreamRef streamRef
      ); *)
-  let invalidate = F.foreign "FSEventStreamInvalidate" (
+  let invalidate = F.(foreign "FSEventStreamInvalidate" (
     typ @-> returning void
-  )
+  ))
 
   (* extern CF_RETURNS_RETAINED CFArrayRef FSEventStreamCopyPathsBeingWatched(
        ConstFSEventStreamRef streamRef
      ); *)
   let copy_paths_being_watched =
-    F.foreign "FSEventStreamCopyPathsBeingWatched" (
+    F.(foreign "FSEventStreamCopyPathsBeingWatched" (
       const_typ @-> returning PathList.typ
-    )
+    ))
 
 end
