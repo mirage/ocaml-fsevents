@@ -1,6 +1,6 @@
 opam-version: "1.2"
 name: "osx-fsevents"
-version: "0.1.1"
+version: "0.1.2"
 maintainer: "sheets@alum.mit.edu"
 authors: ["David Sheets" "Thomas Gazagnaire"]
 homepage: "https://github.com/dsheets/ocaml-osx-fsevents"
