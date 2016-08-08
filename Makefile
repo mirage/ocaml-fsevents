@@ -12,7 +12,7 @@ OCAMLBUILD=CTYPES_LIB_DIR=$(CTYPES_LIB_DIR) OCAML_LIB_DIR=$(OCAML_LIB_DIR) \
 
 WITH_LWT=$(shell ocamlfind query lwt > /dev/null 2>&1 ; echo $$?)
 
-TARGETS=.cma .cmxa
+TARGETS=.cma .cmxa .cmx
 
 PRODUCTS=$(addprefix $(MOD_NAME),$(TARGETS)) \
 	lib$(MOD_NAME)_stubs.a dll$(MOD_NAME)_stubs.so
