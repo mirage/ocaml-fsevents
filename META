@@ -1,4 +1,4 @@
-version = "0.1.0"
+version = "0.1.2"
 description = "OS X FSEvents system library bindings"
 requires = "ctypes.stubs ctypes.foreign osx-cf"
 archive(byte) = "fsevents.cma"
