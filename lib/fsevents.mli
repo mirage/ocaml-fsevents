@@ -104,4 +104,6 @@ val stop : t -> unit
 
 val invalidate : t -> unit
 
+val release : t -> unit
+
 val copy_paths_being_watched : t -> string list

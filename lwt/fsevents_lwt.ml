@@ -56,3 +56,5 @@ let stop { event_stream } = Fsevents.stop event_stream
 let invalidate { event_stream; push } =
   Fsevents.invalidate event_stream;
   push None
+
+let release { event_stream } = Fsevents.release event_stream

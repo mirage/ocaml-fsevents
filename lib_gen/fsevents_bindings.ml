@@ -394,6 +394,13 @@ module C(F: Cstubs.FOREIGN) = struct
     typ @-> returning void
   ))
 
+  (* extern void FSEventStreamRelease(
+       FSEventStreamRef streamRef
+     ); *)
+  let release = F.(foreign "FSEventStreamRelease" (
+    typ @-> returning void
+  ))
+
   (* extern CF_RETURNS_RETAINED CFArrayRef FSEventStreamCopyPathsBeingWatched(
        ConstFSEventStreamRef streamRef
      ); *)

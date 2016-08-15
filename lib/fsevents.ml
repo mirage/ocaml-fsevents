@@ -180,4 +180,6 @@ let stop { stream } = C.stop stream
 
 let invalidate { stream } = C.invalidate stream
 
+let release { stream } = C.release stream
+
 let copy_paths_being_watched { stream } = C.copy_paths_being_watched stream

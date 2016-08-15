@@ -42,3 +42,5 @@ val flush : t -> unit Lwt.t
 val stop : t -> unit
 
 val invalidate : t -> unit
+
+val release : t -> unit
