@@ -8,7 +8,7 @@ archive(native, plugin) = "fsevents.cmxs"
 exists_if = "fsevents.cma"
 
 package "lwt" (
-  requires = "osx-fsevents lwt.preemptive"
+  requires = "osx-fsevents lwt.unix"
   archive(byte) = "fsevents_lwt.cma"
   archive(byte, plugin) = "fsevents_lwt.cma"
   archive(native) = "fsevents_lwt.cmxa"

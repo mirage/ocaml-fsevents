@@ -22,6 +22,6 @@ depends: [
   "cmdliner"
 ]
 depopts: [
-  "lwt"
+  "lwt" {>= "3.2.0"}
 ]
 available: [os = "darwin"]

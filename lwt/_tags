@@ -1,1 +1,1 @@
-<*.*>: package(lwt), package(osx-cf)
+<*.*>: package(lwt), package(lwt.unix), package(osx-cf)
