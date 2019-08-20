@@ -1,1 +1,0 @@
-<*.*>: package(alcotest), package(osx-cf.lwt), thread, use_fsevents_stubs, debug

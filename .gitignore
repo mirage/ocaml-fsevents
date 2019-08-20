@@ -2,4 +2,6 @@
 _build
 _tests
 *.native
-
+_opam
+*.install
+.merlin

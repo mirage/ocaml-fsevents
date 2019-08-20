@@ -16,10 +16,8 @@
  *
  *)
 
-open Ctypes
-
-module Type = Fsevents_types.C(Fsevents_types_detected)
-module C = Fsevents_bindings.C(Fsevents_generated)
+module T = Types.C(Types_detected)
+module C = Bindings.C(Generated)
 
 module CreateFlags = C.CreateFlags
 
@@ -28,8 +26,8 @@ module EventFlags = struct
 
   let string_of_must_scan_subdirs = function
     | Some { user = true; kernel = true } -> "user+kernel"
-    | Some { user = true } -> "user"
-    | Some { kernel = true } -> "kernel"
+    | Some { user = true; _ } -> "user"
+    | Some { kernel = true; _ } -> "kernel"
     | Some { user = false; kernel = false } -> "unknown"
     | None -> "false"
 
@@ -168,18 +166,23 @@ let create ?(since=EventId.Now) latency flags f paths =
   let stream = C.create None callback None paths since latency flags in
   { stream; callback }
 
-let get_latest_event_id { stream } = C.get_latest_event_id stream
+let get_latest_event_id { stream; _ } = C.get_latest_event_id stream
 
-let schedule_with_run_loop { stream } = C.schedule_with_run_loop stream
+let schedule_with_run_loop { stream; _ } = C.schedule_with_run_loop stream
 
-let start { stream } = C.start stream
+let start { stream; _ } = C.start stream
 
-let flush_sync { stream } = C.flush_sync stream
+let flush_sync { stream; _ } = C.flush_sync stream
 
-let stop { stream } = C.stop stream
+let stop { stream; _ } = C.stop stream
 
-let invalidate { stream } = C.invalidate stream
+let invalidate { stream; _ } = C.invalidate stream
 
-let release { stream } = C.release stream
+let release { stream; _ } = C.release stream
 
-let copy_paths_being_watched { stream } = C.copy_paths_being_watched stream
+let copy_paths_being_watched { stream; _ } = C.copy_paths_being_watched stream
+
+module Types = Types
+module Types_detected = Types_detected
+module Bindings = Bindings
+module Generated = Generated

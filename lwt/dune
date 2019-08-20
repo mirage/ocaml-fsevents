@@ -1,0 +1,4 @@
+(library
+  (name fsevents_lwt)
+  (public_name fsevents-lwt)
+  (libraries fsevents lwt.unix threads))

@@ -1,2 +1,0 @@
-<*.*>: package(lwt), package(osx-cf.lwt), package(cmdliner), package(ctypes)
-<*.*>: thread, use_fsevents_stubs

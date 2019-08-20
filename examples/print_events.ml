@@ -24,7 +24,7 @@ let watcher = Fsevents_lwt.create 0. create_flags ["."]
 let stream = Fsevents_lwt.stream watcher
 let event_stream = Fsevents_lwt.event_stream watcher
 
-let string_of_event { Fsevents_lwt.path; flags } =
+let string_of_event { Fsevents_lwt.path; flags; _ } =
   path^"\n"^(Fsevents.EventFlags.to_string flags)
 
 let print_event event = Lwt_io.printf "%s%!\n" (string_of_event event)
@@ -34,7 +34,7 @@ let print_events = Lwt_stream.iter_s print_event stream
 let timer =
   let open Lwt in
   let rec print_time () =
-    let { Unix.tm_hour; tm_min; tm_sec } =
+    let { Unix.tm_hour; tm_min; tm_sec; _ } =
       Unix.(localtime (gettimeofday ()))
     in
     Lwt_io.printf "%02d:%02d:%02d%!\n" tm_hour tm_min tm_sec

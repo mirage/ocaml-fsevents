@@ -1,0 +1,12 @@
+(library
+  (name        fsevents)
+  (public_name fsevents)
+  (libraries   ctypes.stubs cf)
+  (c_library_flags -framework CoreServices)
+  (c_names     fsevents_stubs))
+
+(rule (copy# ../lib_gen/types.ml types.ml))
+(rule (copy# ../lib_gen/types_detected.ml types_detected.ml))
+(rule (copy# ../lib_gen/bindings.ml bindings.ml))
+(rule (copy# ../lib_gen/generated.ml generated.ml))
+(rule (copy# ../lib_gen/fsevents_stubs.c fsevents_stubs.c))

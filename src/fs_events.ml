@@ -21,7 +21,6 @@ type format =
 let string_of_event = function
   | String ->
     fun path flags id ->
-      let open Fsevents_lwt in
       Printf.sprintf "%s %s %s"
         (Unsigned.UInt64.to_string (Fsevents.EventId.to_uint64 id))
         path
@@ -52,8 +51,8 @@ let stream format paths =
            paths_s;
          exit 1)
     )
-    >>= fun runloop ->
-    let never, waken = Lwt.wait () in
+    >>= fun _runloop ->
+    let never, _waken = Lwt.wait () in
     never
   end
 

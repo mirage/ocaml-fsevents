@@ -107,3 +107,8 @@ val invalidate : t -> unit
 val release : t -> unit
 
 val copy_paths_being_watched : t -> string list
+
+module Types = Types
+module Types_detected = Types_detected
+module Bindings = Bindings
+module Generated = Generated

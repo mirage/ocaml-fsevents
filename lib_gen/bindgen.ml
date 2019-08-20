@@ -15,17 +15,15 @@
  *
  *)
 
-open Ctypes
-
 let () =
   let prefix = "caml_" in
-  let stubs_oc = open_out "lib/fsevents_stubs.c" in
+  let stubs_oc = open_out "fsevents_stubs.c" in
   let fmt = Format.formatter_of_out_channel stubs_oc in
   Format.fprintf fmt "#include <CoreServices/CoreServices.h>@.";
-  Cstubs.write_c fmt ~prefix (module Fsevents_bindings.C);
+  Cstubs.write_c fmt ~prefix (module Bindings.C);
   close_out stubs_oc;
 
-  let generated_oc = open_out "lib/fsevents_generated.ml" in
+  let generated_oc = open_out "generated.ml" in
   let fmt = Format.formatter_of_out_channel generated_oc in
-  Cstubs.write_ml fmt ~prefix (module Fsevents_bindings.C);
+  Cstubs.write_ml fmt ~prefix (module Bindings.C);
   close_out generated_oc

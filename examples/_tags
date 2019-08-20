@@ -1,1 +1,0 @@
-<*.*>: package(lwt), package(osx-cf.lwt), thread, use_fsevents_stubs

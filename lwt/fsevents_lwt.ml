@@ -36,25 +36,25 @@ let create ?since latency flags paths =
   let event_stream = Fsevents.create ?since latency flags import paths in
   { stream; push; event_stream }
 
-let get_latest_event_id { event_stream } =
+let get_latest_event_id { event_stream; _ } =
   Fsevents.get_latest_event_id event_stream
 
-let start { event_stream } = Fsevents.start event_stream
+let start { event_stream; _ } = Fsevents.start event_stream
 
-let schedule_with_run_loop { event_stream } =
+let schedule_with_run_loop { event_stream; _ } =
   Fsevents.schedule_with_run_loop event_stream
 
-let stream { stream } = stream
+let stream { stream; _ } = stream
 
-let event_stream { event_stream } = event_stream
+let event_stream { event_stream; _ } = event_stream
 
-let flush { event_stream } =
+let flush { event_stream; _ } =
   Lwt_preemptive.detach Fsevents.flush_sync event_stream
 
-let stop { event_stream } = Fsevents.stop event_stream
+let stop { event_stream; _ } = Fsevents.stop event_stream
 
-let invalidate { event_stream; push } =
+let invalidate { event_stream; push; _ } =
   Fsevents.invalidate event_stream;
   push None
 
-let release { event_stream } = Fsevents.release event_stream
+let release { event_stream; _ } = Fsevents.release event_stream
