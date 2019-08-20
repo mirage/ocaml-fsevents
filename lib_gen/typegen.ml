@@ -15,11 +15,9 @@
  *
  *)
 
-open Ctypes
-
 let () =
-  let type_oc = open_out "lib_gen/fsevents_types_detect.c" in
+  let type_oc = open_out "detect.c" in
   let fmt = Format.formatter_of_out_channel type_oc in
   Format.fprintf fmt "#include <CoreServices/CoreServices.h>@.";
-  Cstubs.Types.write_c fmt (module Fsevents_types.C);
+  Cstubs.Types.write_c fmt (module Types.C);
   close_out type_oc;

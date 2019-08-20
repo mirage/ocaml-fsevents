@@ -151,7 +151,7 @@ module Event = struct
       { remaining with flags = { remaining.flags with item_type = None } }
     | _ -> fail_event remaining "ItemType(File)"
 
-  let check_path { path; flags } expected_path =
+  let check_path { path; flags; _ } expected_path =
     if expected_path = path
     then ()
     else
@@ -175,20 +175,20 @@ module Event = struct
     then Lwt.return_unit
     else
       Lwt_stream.next stream
-      >>= fun { path; flags } ->
+      >>= fun { path; flags; _ } ->
       Alcotest.fail ("event stream is not empty:\n"^path^"\n"^
                      to_string_one_line flags)
 
   let rec check ?remaining stream = function
     | [] ->
       (match remaining with
-       | Some { flags } when flags = zero -> end_of_stream stream
+       | Some { flags; _ } when flags = zero -> end_of_stream stream
        | Some event -> fail_event event "no"
        | None -> end_of_stream stream
       )
     | first::rest ->
       (match remaining with
-       | Some { flags } when flags = zero -> Lwt_stream.next stream
+       | Some { flags; _ } when flags = zero -> Lwt_stream.next stream
        | Some event -> return event
        | None -> Lwt_stream.next stream
       ) >>= fun remaining ->

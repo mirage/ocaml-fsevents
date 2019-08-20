@@ -24,7 +24,7 @@ let (??>) flag int32 = if flag then int32 else 0_l
 
 let (??<) field int32 = Int32.logand field int32 <> 0_l
 
-module Type = Fsevents_types.C(Fsevents_types_detected)
+module T = Types.C(Types_detected)
 
 module C(F: Cstubs.FOREIGN) = struct
 
@@ -37,7 +37,7 @@ module C(F: Cstubs.FOREIGN) = struct
 
   module CreateFlags = struct
 
-    open Type.CreateFlags
+    open T.CreateFlags
 
     type t = {
       use_cf_types : bool;
@@ -106,7 +106,7 @@ module C(F: Cstubs.FOREIGN) = struct
 
   module EventFlags = struct
 
-    open Type.EventFlags
+    open T.EventFlags
 
     type dropping_party = {
       user : bool;
@@ -259,15 +259,15 @@ module C(F: Cstubs.FOREIGN) = struct
       | Since of Unsigned.UInt64.t
 
     let of_uint64 i =
-      if i = Type.EventId.since_now
+      if i = T.EventId.since_now
       then Now
       else Since i
 
     let to_uint64 = function
-      | Now -> Type.EventId.since_now
+      | Now -> T.EventId.since_now
       | Since i -> i
 
-    let typ = view ~read:of_uint64 ~write:to_uint64 Type.EventId.t
+    let typ = view ~read:of_uint64 ~write:to_uint64 T.EventId.t
 
   end
 
@@ -295,7 +295,7 @@ module C(F: Cstubs.FOREIGN) = struct
         size_t @->
         void_string_typ @->
         typedef (ptr EventFlags.typ) "const FSEventStreamEventFlags *" @->
-        typedef (ptr Type.EventId.t) "const FSEventStreamEventId *" @->
+        typedef (ptr T.EventId.t) "const FSEventStreamEventId *" @->
         returning void
       )
 
