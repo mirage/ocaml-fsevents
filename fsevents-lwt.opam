@@ -16,7 +16,7 @@ build: [
 depends: [
   "dune" {>= "1.1"}
   "alcotest" {test}
-  "cf-lwt" {>= "0.3.0"}
+  "fsevents" {>= "0.3.0"}
   "cmdliner"
 ]
 
