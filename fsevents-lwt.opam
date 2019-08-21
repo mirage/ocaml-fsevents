@@ -24,6 +24,10 @@ depends: [
 
 available: [os = "macos"]
 
+pin-depends: [
+  ["cf-lwt.dev" "git+https://github.com/mirage/ocaml-cf.git"]
+]
+
 synopsis: """
 OCaml bindings to MacOS FSEvents
 """
