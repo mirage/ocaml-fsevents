@@ -1,7 +1,7 @@
 (library
   (name        fsevents)
   (public_name fsevents)
-  (libraries   ctypes.stubs cf)
+  (libraries   ctypes.stubs ctypes.foreign cf)
   (c_library_flags -framework CoreServices)
   (c_names     fsevents_stubs))
 
