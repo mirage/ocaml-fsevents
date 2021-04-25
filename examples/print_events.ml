@@ -50,7 +50,7 @@ Lwt.(async (fun () ->
         Fsevents.schedule_with_run_loop event_stream runloop run_loop_mode;
         if not (Fsevents.start event_stream)
         then prerr_endline "failed to start FSEvents stream"
-      )
+      ) >>= fun _ -> Lwt.return_unit
 ));
 Lwt.async (fun () -> print_events);
 Lwt_main.run timer
