@@ -1,4 +1,6 @@
 (test
-  (name      test)
-  (package   fsevents-lwt)
-  (libraries lwt.unix alcotest cf-lwt fsevents-lwt))
+ (name test)
+ (package fsevents-lwt)
+ (enabled_if
+  (= %{system} macosx))
+ (libraries lwt.unix alcotest cf-lwt fsevents-lwt))

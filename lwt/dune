@@ -1,4 +1,4 @@
 (library
-  (name fsevents_lwt)
-  (public_name fsevents-lwt)
-  (libraries lwt.unix threads ctypes.stubs ctypes.foreign fsevents))
+ (name fsevents_lwt)
+ (public_name fsevents-lwt)
+ (libraries lwt.unix threads ctypes.stubs ctypes.foreign fsevents))

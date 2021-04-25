@@ -1,7 +1,7 @@
 (executable
-  (name print_events)
-  (libraries cf-lwt fsevents-lwt))
+ (name print_events)
+ (libraries cf-lwt fsevents-lwt))
 
 (alias
-  (name runtest)
-  (deps print_events.exe))
+ (name runtest)
+ (deps print_events.exe))

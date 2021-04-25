@@ -1,4 +1,6 @@
 (executable
-  (public_name fs_events)
-  (package     fsevents-lwt)
-  (libraries   cmdliner cf-lwt fsevents-lwt))
+ (public_name fs_events)
+ (package fsevents-lwt)
+ (enabled_if
+  (= %{system} macosx))
+ (libraries cmdliner cf-lwt fsevents-lwt))

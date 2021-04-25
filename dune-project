@@ -1,2 +1,28 @@
 (lang dune 2.8)
 (name fsevents)
+(source (github mirage/ocaml-fsevents))
+(license ISC)
+(authors "David Sheets" "Thomas Gazagnaire")
+(maintainers "Thomas Gazagnaire")
+
+(package
+ (name fsevents)
+ (synopsis "OCaml bindings to macOS FSEvents")
+ (description "These bindings use [ctypes](https://github.com/ocamllabs/ocaml-ctypes)
+for type-safe stub generation.")
+ (depends
+  base-bytes
+  (ctypes (>= "0.4.0"))))
+
+(package
+ (name fsevents-lwt)
+ (synopsis "Lwt interface to macOS FSEvents")
+ (description "An Lwt interface to the macOS FSEvents framework, using the
+`cf-lwt` library for the low-level bindings.")
+ (depends
+  (fsevents (= :version))
+  cf-lwt
+  cmdliner
+  (alcotest :with-test)
+  (lwt (>= "5.0.0"))))
+
