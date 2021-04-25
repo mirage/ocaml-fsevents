@@ -4,6 +4,7 @@
 * use dune-project opam file generation (@avsm).
 * support building on non-macOS by just installing a
   stub library (@avsm)
+* switch from Travis CI to GitHub Actions and ocaml-ci (@avsm)
 
 ### 0.2.0 (2016-08-15):
 
