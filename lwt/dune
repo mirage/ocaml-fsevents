@@ -1,4 +1,6 @@
 (library
  (name fsevents_lwt)
  (public_name fsevents-lwt)
+ (enabled_if
+  (= %{system} macosx))
  (libraries lwt.unix threads ctypes.stubs ctypes.foreign fsevents))
