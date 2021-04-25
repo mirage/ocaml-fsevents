@@ -1,5 +1,8 @@
 (lang dune 2.8)
 (name fsevents)
+
+(generate_opam_files true)
+
 (source (github mirage/ocaml-fsevents))
 (license ISC)
 (authors "David Sheets" "Thomas Gazagnaire")
