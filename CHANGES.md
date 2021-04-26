@@ -1,5 +1,7 @@
-### 0.3.0 (unreleased)
+### 0.3.0 (2021-04-26)
 
+* library renamed to `fsevents` from `osx-fsevents`
+  with a new upstream at https://github.com/mirage (@avsm @samoht)
 * switch to dune (@samoht)
 * use dune-project opam file generation (@avsm).
 * support building on non-macOS by just installing a

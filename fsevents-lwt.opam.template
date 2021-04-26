@@ -1,1 +1,0 @@
-pin-depends: [ ["cf-lwt.dev" "git+https://github.com/mirage/ocaml-cf.git#918e2b9a7ab6871e48cce0508bce5e45981375f6" ] ]
