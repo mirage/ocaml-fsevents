@@ -12,6 +12,7 @@ bug-reports: "https://github.com/mirage/ocaml-fsevents/issues"
 depends: [
   "dune" {>= "2.8"}
   "base-bytes"
+  "cf" {>= "0.4.0"}
   "ctypes" {>= "0.4.0"}
   "odoc" {with-doc}
 ]
@@ -30,4 +31,3 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/mirage/ocaml-fsevents.git"
-pin-depends: [ ["cf.dev" "git+https://github.com/mirage/ocaml-cf.git#918e2b9a7ab6871e48cce0508bce5e45981375f6" ] ]
