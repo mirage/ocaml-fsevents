@@ -15,7 +15,7 @@
 for type-safe stub generation.")
  (depends
   base-bytes
-  (cf (>= "0.4.0"))
+  (cf (>= "0.4"))
   (ctypes (>= "0.4.0"))))
 
 (package
