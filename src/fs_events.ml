@@ -67,10 +67,6 @@ let stream_cmd =
   let paths = Arg.(
     value (pos_all file [Sys.getcwd ()] (info ~docv:"PATH" []))
   ) in
-  Term.(ret (pure stream $ format $ paths)),
-  Term.info "fsevents" ~doc
+  Cmd.v (Cmd.info "fsevents" ~doc) Term.(ret (const stream $ format $ paths))
 
-;;
-match Term.eval stream_cmd with
-| `Error _ -> exit 1
-| _ -> exit 0
+let () = exit (Cmd.eval stream_cmd)

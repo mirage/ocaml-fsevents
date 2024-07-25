@@ -25,7 +25,6 @@ for type-safe stub generation.")
  (depends
   (fsevents (= :version))
   cf-lwt
-  cmdliner
+  (cmdliner (>= "1.1.0"))
   (alcotest :with-test)
   (lwt (>= "5.0.0"))))
-
