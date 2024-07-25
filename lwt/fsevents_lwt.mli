@@ -16,31 +16,26 @@
  *)
 
 type event = {
-  path  : string;
+  path : string;
   flags : Fsevents.EventFlags.t;
-  id    : Fsevents.EventId.t;
+  id : Fsevents.EventId.t;
 }
 
 type t
 
 val create :
   ?since:Fsevents.EventId.t ->
-  float -> Fsevents.CreateFlags.t -> string list -> t
+  float ->
+  Fsevents.CreateFlags.t ->
+  string list ->
+  t
 
 val get_latest_event_id : t -> Fsevents.EventId.t
-
 val start : t -> bool
-
 val schedule_with_run_loop : t -> Cf.RunLoop.t -> Cf.RunLoop.Mode.t -> unit
-
 val stream : t -> event Lwt_stream.t
-
 val event_stream : t -> Fsevents.t
-
 val flush : t -> unit Lwt.t
-
 val stop : t -> unit
-
 val invalidate : t -> unit
-
 val release : t -> unit
