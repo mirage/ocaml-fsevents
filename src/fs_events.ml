@@ -67,9 +67,9 @@ let stream_cmd =
            String
            (info ~docv:"FORMAT" [ "format" ])))
   in
-  let paths = Arg.(
-    value (pos_all file [Sys.getcwd ()] (info ~docv:"PATH" []))
-  ) in
+  let paths =
+    Arg.(value (pos_all file [ Sys.getcwd () ] (info ~docv:"PATH" [])))
+  in
   Cmd.v (Cmd.info "fsevents" ~doc) Term.(ret (const stream $ format $ paths))
 
 let () = exit (Cmd.eval stream_cmd)
