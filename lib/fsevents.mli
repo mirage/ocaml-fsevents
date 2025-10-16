@@ -17,7 +17,6 @@
  *)
 
 module CreateFlags : sig
-
   type t = {
     use_cf_types : bool;
     no_defer : bool;
@@ -28,84 +27,61 @@ module CreateFlags : sig
   }
 
   val detailed_interactive : t
-
 end
 
 module EventFlags : sig
-
-  type dropping_party = {
-    user : bool;
-    kernel: bool;
-  }
-
+  type dropping_party = { user : bool; kernel : bool }
   type item_type = File | Symlink | Dir | Hardlink
 
   type t = {
-    must_scan_subdirs    : dropping_party option;
-    event_ids_wrapped    : bool;
-    history_done         : bool;
-    root_changed         : bool;
-    mount                : bool;
-    unmount              : bool;
-    own_event            : bool;
-    item_created         : bool;
-    item_removed         : bool;
-    item_inode_meta_mod  : bool;
-    item_renamed         : bool;
-    item_modified        : bool;
+    must_scan_subdirs : dropping_party option;
+    event_ids_wrapped : bool;
+    history_done : bool;
+    root_changed : bool;
+    mount : bool;
+    unmount : bool;
+    own_event : bool;
+    item_created : bool;
+    item_removed : bool;
+    item_inode_meta_mod : bool;
+    item_renamed : bool;
+    item_modified : bool;
     item_finder_info_mod : bool;
-    item_change_owner    : bool;
-    item_xattr_mod       : bool;
-    item_type            : item_type option;
-    item_is_last_hardlink: bool;
+    item_change_owner : bool;
+    item_xattr_mod : bool;
+    item_type : item_type option;
+    item_is_last_hardlink : bool;
   }
 
   val to_string : t -> string
-
   val to_string_one_line : t -> string
-
   val zero : t
 end
 
 module EventId : sig
-  type t =
-    | Now
-    | Since of Unsigned.UInt64.t
+  type t = Now | Since of Unsigned.UInt64.t
 
   val of_uint64 : Unsigned.UInt64.t -> t
-
   val to_uint64 : t -> Unsigned.UInt64.t
-
   val typ : t Ctypes.typ
-
   val min : t -> t -> t
-
   val max : t -> t -> t
-
   val compare : t -> t -> int
 end
 
 type t
-
 type callback = string -> EventFlags.t -> EventId.t -> unit
 
 val create :
   ?since:EventId.t -> float -> CreateFlags.t -> callback -> string list -> t
 
 val get_latest_event_id : t -> EventId.t
-
 val schedule_with_run_loop : t -> Cf.RunLoop.t -> Cf.RunLoop.Mode.t -> unit
-
 val start : t -> bool
-
 val flush_sync : t -> unit
-
 val stop : t -> unit
-
 val invalidate : t -> unit
-
 val release : t -> unit
-
 val copy_paths_being_watched : t -> string list
 
 module Types = Types

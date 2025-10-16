@@ -15,58 +15,61 @@
  *
  *)
 
-type format =
-  | String
+type format = String
 
 let string_of_event = function
   | String ->
-    fun path flags id ->
-      Printf.sprintf "%s %s %s"
-        (Unsigned.UInt64.to_string (Fsevents.EventId.to_uint64 id))
-        path
-        (Fsevents.EventFlags.to_string_one_line flags)
+      fun path flags id ->
+        Printf.sprintf "%s %s %s"
+          (Unsigned.UInt64.to_string (Fsevents.EventId.to_uint64 id))
+          path
+          (Fsevents.EventFlags.to_string_one_line flags)
 
 let print_event format path flags id =
   print_endline (string_of_event format path flags id)
 
 (* TODO: termination *)
 let stream format paths =
-  let create_flags = Fsevents.CreateFlags.({
-    use_cf_types = false;
-    no_defer = true;
-    watch_root = true;
-    ignore_self = true;
-    file_events = true;
-    mark_self = false;
-  }) in
+  let create_flags =
+    Fsevents.CreateFlags.
+      {
+        use_cf_types = false;
+        no_defer = true;
+        watch_root = true;
+        ignore_self = true;
+        file_events = true;
+        mark_self = false;
+      }
+  in
   let watcher = Fsevents.create 0. create_flags (print_event format) paths in
-  Lwt_main.run begin
-    let open Lwt.Infix in
-    Cf_lwt.RunLoop.run_thread (fun runloop ->
-      Fsevents.schedule_with_run_loop watcher runloop Cf.RunLoop.Mode.Default;
-      if not (Fsevents.start watcher)
-      then
-        let paths_s = String.concat " " paths in
-        (Printf.eprintf "Failed to start FSEvents watcher for [ %s ]\n%!"
-           paths_s;
-         exit 1)
-    )
-    >>= fun _runloop ->
-    let never, _waken = Lwt.wait () in
-    never
-  end
+  Lwt_main.run
+    (let open Lwt.Infix in
+     Cf_lwt.RunLoop.run_thread (fun runloop ->
+         Fsevents.schedule_with_run_loop watcher runloop Cf.RunLoop.Mode.Default;
+         if not (Fsevents.start watcher) then (
+           let paths_s = String.concat " " paths in
+           Printf.eprintf "Failed to start FSEvents watcher for [ %s ]\n%!"
+             paths_s;
+           exit 1))
+     >>= fun _runloop ->
+     let never, _waken = Lwt.wait () in
+     never)
 
 open Cmdliner
 
 let stream_cmd =
   let doc = "output an FSEvents event stream" in
-  let format = Arg.(value (opt (enum [
-      "string", String;
-    ]) String (info ~docv:"FORMAT" ["format"])))
+  let format =
+    Arg.(
+      value
+        (opt
+           (enum [ ("string", String) ])
+           String
+           (info ~docv:"FORMAT" [ "format" ])))
   in
-  let paths = Arg.(
-    value (pos_all file [Sys.getcwd ()] (info ~docv:"PATH" []))
-  ) in
+  let paths =
+    Arg.(value (pos_all file [ Sys.getcwd () ] (info ~docv:"PATH" [])))
+  in
   Cmd.v (Cmd.info "fsevents" ~doc) Term.(ret (const stream $ format $ paths))
 
 let () = exit (Cmd.eval stream_cmd)

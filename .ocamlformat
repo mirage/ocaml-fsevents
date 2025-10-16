@@ -1,2 +1,4 @@
-version = 0.18.0
-disable = true
+version = 0.27.0
+profile = conventional
+break-infix = fit-or-vertical
+parse-docstrings = true
