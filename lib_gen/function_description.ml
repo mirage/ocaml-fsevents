@@ -25,7 +25,7 @@ let ( ??< ) field int32 = Int32.logand field int32 <> 0_l
 module Types = Types_generated
 
 module Functions (F : Ctypes.FOREIGN) = struct
-  (* open F *)
+  open F
 
   type t = unit ptr
 
@@ -309,22 +309,21 @@ module Functions (F : Ctypes.FOREIGN) = struct
        FSEventStreamCreateFlags flags
      ); *)
   let create =
-    F.(
-      foreign "FSEventStreamCreate"
-        (ptr_opt void
-        @-> Callback.cstring_typ
-        @-> ptr_opt Context.typ
-        @-> PathList.typ
-        @-> EventId.typ
-        @-> Cf.TimeInterval.typ
-        @-> CreateFlags.typ
-        @-> returning typ))
+    foreign "FSEventStreamCreate"
+      (ptr_opt void
+      @-> Callback.cstring_typ
+      @-> ptr_opt Context.typ
+      @-> PathList.typ
+      @-> EventId.typ
+      @-> Cf.TimeInterval.typ
+      @-> CreateFlags.typ
+      @-> returning typ)
 
   (* extern FSEventStreamEventId FSEventStreamGetLatestEventId(
        ConstFSEventStreamRef streamRef
      ); *)
   let get_latest_event_id =
-    F.(foreign "FSEventStreamGetLatestEventId" (typ @-> returning EventId.typ))
+    foreign "FSEventStreamGetLatestEventId" (typ @-> returning EventId.typ)
 
   (* extern void FSEventStreamScheduleWithRunLoop(
        FSEventStreamRef   streamRef,
@@ -332,41 +331,38 @@ module Functions (F : Ctypes.FOREIGN) = struct
        CFStringRef        runLoopMode
      ); *)
   let schedule_with_run_loop =
-    F.(
-      foreign "FSEventStreamScheduleWithRunLoop"
-        (typ @-> Cf.RunLoop.typ @-> Cf.RunLoop.Mode.typ @-> returning void))
+    foreign "FSEventStreamScheduleWithRunLoop"
+      (typ @-> Cf.RunLoop.typ @-> Cf.RunLoop.Mode.typ @-> returning void)
 
   (* extern Boolean FSEventStreamStart(
        FSEventStreamRef streamRef
      ); *)
-  let start = F.(foreign "FSEventStreamStart" (typ @-> returning bool))
+  let start = foreign "FSEventStreamStart" (typ @-> returning bool)
 
   (* extern void FSEventStreamFlushSync(
        FSEventStreamRef streamRef
      ); *)
-  let flush_sync = F.(foreign "FSEventStreamFlushSync" (typ @-> returning void))
+  let flush_sync = foreign "FSEventStreamFlushSync" (typ @-> returning void)
 
   (* extern void FSEventStreamStop(
        FSEventStreamRef streamRef
      ); *)
-  let stop = F.(foreign "FSEventStreamStop" (typ @-> returning void))
+  let stop = foreign "FSEventStreamStop" (typ @-> returning void)
 
   (* extern void FSEventStreamInvalidate(
        FSEventStreamRef streamRef
      ); *)
-  let invalidate =
-    F.(foreign "FSEventStreamInvalidate" (typ @-> returning void))
+  let invalidate = foreign "FSEventStreamInvalidate" (typ @-> returning void)
 
   (* extern void FSEventStreamRelease(
        FSEventStreamRef streamRef
      ); *)
-  let release = F.(foreign "FSEventStreamRelease" (typ @-> returning void))
+  let release = foreign "FSEventStreamRelease" (typ @-> returning void)
 
   (* extern CF_RETURNS_RETAINED CFArrayRef FSEventStreamCopyPathsBeingWatched(
        ConstFSEventStreamRef streamRef
      ); *)
   let copy_paths_being_watched =
-    F.(
-      foreign "FSEventStreamCopyPathsBeingWatched"
-        (const_typ @-> returning PathList.typ))
+    foreign "FSEventStreamCopyPathsBeingWatched"
+      (const_typ @-> returning PathList.typ)
 end
