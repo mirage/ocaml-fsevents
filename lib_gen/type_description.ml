@@ -15,12 +15,16 @@
  *
  *)
 
-module C (F : Cstubs.Types.TYPE) = struct
-  let const = F.constant
-  let lift = F.lift_typ
+(* open Ctypes *)
+
+module Types (F : Ctypes.TYPE) = struct
+  open F
+
+  let const = constant
+  let lift = lift_typ
 
   module CreateFlags = struct
-    let t = F.uint32_t
+    let t = uint32_t
     let prefix = "kFSEventStreamCreateFlag"
     let use_cf_types = const (prefix ^ "UseCFTypes") t
     let no_defer = const (prefix ^ "NoDefer") t
@@ -31,7 +35,7 @@ module C (F : Cstubs.Types.TYPE) = struct
   end
 
   module EventFlags = struct
-    let t = F.typedef F.uint32_t "FSEventStreamEventFlags"
+    let t = typedef uint32_t "FSEventStreamEventFlags"
     let prefix = "kFSEventStreamEventFlag"
     let must_scan_subdirs = const (prefix ^ "MustScanSubDirs") t
     let user_dropped = const (prefix ^ "UserDropped") t
@@ -58,7 +62,7 @@ module C (F : Cstubs.Types.TYPE) = struct
   end
 
   module EventId = struct
-    let t = F.typedef F.uint64_t "FSEventStreamEventId"
+    let t = typedef uint64_t "FSEventStreamEventId"
     let prefix = "kFSEventStreamEventId"
     let since_now = const (prefix ^ "SinceNow") t
   end
@@ -66,16 +70,16 @@ module C (F : Cstubs.Types.TYPE) = struct
   module Context = struct
     type t
 
-    let t : t Ctypes_static.structure F.typ = F.structure "FSEventStreamContext"
-    let version = F.field t "version" (lift Cf.Index.typ)
-    let info = F.field t "info" F.(ptr void)
-    let retain = F.field t "retain" (lift Cf.Allocator.retain_callback_typ)
-    let release = F.field t "release" (lift Cf.Allocator.release_callback_typ)
+    let t : t Ctypes_static.structure typ = structure "FSEventStreamContext"
+    let version = field t "version" (lift Cf.Index.typ)
+    let info = field t "info" (ptr void)
+    let retain = field t "retain" (lift Cf.Allocator.retain_callback_typ)
+    let release = field t "release" (lift Cf.Allocator.release_callback_typ)
 
     let copy_description =
-      F.field t "copyDescription"
+      field t "copyDescription"
         (lift Cf.Allocator.copy_description_callback_typ)
 
-    let () = F.seal t
+    let () = seal t
   end
 end

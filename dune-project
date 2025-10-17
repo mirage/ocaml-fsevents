@@ -1,7 +1,8 @@
-(lang dune 2.8)
+(lang dune 3.20)
 (name fsevents)
 
 (generate_opam_files true)
+(using ctypes 0.3)
 
 (source (github mirage/ocaml-fsevents))
 (license ISC)
@@ -14,8 +15,8 @@
  (description "These bindings use [ctypes](https://github.com/ocamllabs/ocaml-ctypes)
 for type-safe stub generation.")
  (depends
-  (cf (>= "0.4"))
-  (ctypes (>= "0.4.0"))))
+  (cf (>= "0.5"))
+  (ctypes (>= "0.23.0"))))
 
 (package
  (name fsevents-lwt)

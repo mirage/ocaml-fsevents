@@ -16,12 +16,11 @@
  *
  *)
 
-module T = Types.C (Types_detected)
-module C = Bindings.C (Generated)
-module CreateFlags = C.CreateFlags
+module C = Fsevents_ctypes.C
+module CreateFlags = C.Functions.CreateFlags
 
 module EventFlags = struct
-  include C.EventFlags
+  include C.Functions.EventFlags
 
   let string_of_must_scan_subdirs = function
     | Some { user = true; kernel = true } -> "user+kernel"
@@ -114,7 +113,7 @@ module EventFlags = struct
 end
 
 module EventId = struct
-  include C.EventId
+  include C.Functions.EventId
 
   let min a b =
     match (a, b) with
@@ -139,34 +138,39 @@ module EventId = struct
 end
 
 type t = {
-  stream : C.t;
+  stream : C.Functions.t;
   callback :
-    C.t ->
+    C.Functions.t ->
     unit Ctypes_static.ptr ->
     Unsigned.size_t ->
     string Ctypes.ptr ->
-    C.EventFlags.t Ctypes.ptr ->
+    C.Functions.EventFlags.t Ctypes.ptr ->
     Unsigned.uint64 Ctypes.ptr ->
     unit;
 }
+[@@warning "-69"]
+(* Error (warning 69 [unused-field]): record field callback is never
+   read. *)
 
-type callback = C.Callback.t
+type callback = C.Functions.Callback.t
 
 let create ?(since = EventId.Now) latency flags f paths =
-  let callback = C.Callback.to_cstring_typ f in
-  let stream = C.create None callback None paths since latency flags in
+  let callback = C.Functions.Callback.to_cstring_typ f in
+  let stream =
+    C.Functions.create None callback None paths since latency flags
+  in
   { stream; callback }
 
-let get_latest_event_id { stream; _ } = C.get_latest_event_id stream
-let schedule_with_run_loop { stream; _ } = C.schedule_with_run_loop stream
-let start { stream; _ } = C.start stream
-let flush_sync { stream; _ } = C.flush_sync stream
-let stop { stream; _ } = C.stop stream
-let invalidate { stream; _ } = C.invalidate stream
-let release { stream; _ } = C.release stream
-let copy_paths_being_watched { stream; _ } = C.copy_paths_being_watched stream
+let get_latest_event_id { stream; _ } = C.Functions.get_latest_event_id stream
 
-module Types = Types
-module Types_detected = Types_detected
-module Bindings = Bindings
-module Generated = Generated
+let schedule_with_run_loop { stream; _ } =
+  C.Functions.schedule_with_run_loop stream
+
+let start { stream; _ } = C.Functions.start stream
+let flush_sync { stream; _ } = C.Functions.flush_sync stream
+let stop { stream; _ } = C.Functions.stop stream
+let invalidate { stream; _ } = C.Functions.invalidate stream
+let release { stream; _ } = C.Functions.release stream
+
+let copy_paths_being_watched { stream; _ } =
+  C.Functions.copy_paths_being_watched stream

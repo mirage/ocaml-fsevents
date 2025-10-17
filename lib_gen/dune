@@ -1,62 +1,26 @@
-;; generated detect.c
-
 (library
- (name types)
- (libraries ctypes.stubs cf)
+ (name fsevents_ctypes)
+ (public_name fsevents.ctypes)
+ (libraries cf)
  (enabled_if
   (= %{system} macosx))
- (modules types))
-
-(executable
- (name typegen)
- (libraries ctypes.stubs ctypes.foreign types)
- (enabled_if
-  (= %{system} macosx))
- (modules typegen))
-
-(rule
- (targets detect.c)
- (deps typegen.exe)
- (action
-  (run %{deps}))
- (enabled_if
-  (= %{system} macosx)))
-
-;; generate types_detected.ml
-
-(rule
- (targets detect.exe)
- (deps detect.c)
- (action
-  (run %{cc} -I %{ocaml_where} -I %{lib:ctypes:} -o %{targets} %{deps}))
- (enabled_if
-  (= %{system} macosx)))
-
-(rule
- (targets types_detected.ml)
- (deps detect.exe)
- (action
-  (with-stdout-to
-   %{targets}
-   (progn
-    (echo "[@@@ warning \"-27-9\"]\n\n")
-    (run %{deps}))))
- (enabled_if
-  (= %{system} macosx)))
-
-;; generate fevents_stubs.c and generated.ml
-
-(executable
- (name bindgen)
- (libraries ctypes.stubs ctypes.foreign types)
- (modules bindgen bindings types_detected)
- (enabled_if
-  (= %{system} macosx)))
-
-(rule
- (targets fsevents_stubs.c generated.ml)
- (deps bindgen.exe)
- (action
-  (run %{deps}))
- (enabled_if
-  (= %{system} macosx)))
+ (optional)
+ ; ctypes backward compatibility shims warn sometimes; suppress them
+ (flags
+  (:standard -w -9-27))
+ (ctypes
+  (external_library_name fsevents)
+  (build_flags_resolver
+   (vendored
+    (c_flags :standard)
+    (c_library_flags :standard -framework CoreServices)))
+  (headers
+   (include "CoreServices/CoreServices.h"))
+  (type_description
+   (instance Types)
+   (functor Type_description))
+  (function_description
+   (instance Functions)
+   (functor Function_description))
+  (generated_types Types_generated)
+  (generated_entry_point C)))
