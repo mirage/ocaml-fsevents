@@ -15,7 +15,11 @@
  *
  *)
 
-module C (F : Cstubs.Types.TYPE) = struct
+(* open Ctypes *)
+
+module Types (F : Ctypes.TYPE) = struct
+  (* open F *)
+
   let const = F.constant
   let lift = F.lift_typ
 
