@@ -1,8 +1,10 @@
 (library
- (name fsevents_stubs)
+ (name fsevents_ctypes)
+ (public_name fsevents.ctypes)
  (libraries cf)
  (enabled_if
   (= %{system} macosx))
+ (optional)
  ; ctypes backward compatibility shims warn sometimes; suppress them
  (flags
   (:standard -w -9-27))

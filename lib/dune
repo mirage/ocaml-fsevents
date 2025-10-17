@@ -1,11 +1,7 @@
 (library
- (foreign_stubs
-  (language c)
-  (names fsevents_stubs))
  (name fsevents)
  (public_name fsevents)
  (enabled_if
   (= %{system} macosx))
- (libraries fsevents_ctypes ctypes.stubs ctypes.foreign cf)
- (optional)
- (c_library_flags -framework CoreServices))
+ (libraries fsevents.ctypes ctypes.stubs ctypes.foreign cf)
+ (optional))
