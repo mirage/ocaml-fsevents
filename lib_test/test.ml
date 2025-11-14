@@ -96,6 +96,7 @@ module Event = struct
     | Modify of string
     | MetaModify of string
     | ChangeOwner of string
+    | XattrMod of string
 
   let fail_event remaining event_type =
     Alcotest.fail
@@ -136,6 +137,11 @@ module Event = struct
         flags = { remaining.flags with item_change_owner = false };
       }
     else fail_event remaining "ItemChangeOwner"
+
+  let has_xattr_mod remaining =
+    if remaining.flags.item_xattr_mod then
+      { remaining with flags = { remaining.flags with item_xattr_mod = false } }
+    else fail_event remaining "ItemXattrMod"
 
   let has_dir_type remaining =
     match remaining.flags.item_type with
@@ -178,6 +184,9 @@ module Event = struct
     | ChangeOwner path ->
         check_path remaining path;
         has_change_owner remaining
+    | XattrMod path ->
+        check_path remaining path;
+        has_xattr_mod remaining
     | DirType n -> check_one (has_dir_type remaining) n
     | FileType n -> check_one (has_file_type remaining) n
 
@@ -188,6 +197,10 @@ module Event = struct
       Lwt_stream.next stream >>= fun { path; flags; _ } ->
       Alcotest.fail
         ("event stream is not empty:\n" ^ path ^ "\n" ^ to_string_one_line flags)
+
+  (* Ignore item_xattr_mod flag as it's not consistently set on macOS *)
+  let clear_xattr_mod event =
+    { event with flags = { event.flags with item_xattr_mod = false } }
 
   let rec check ?remaining stream = function
     | [] -> (
@@ -201,6 +214,7 @@ module Event = struct
         | Some event -> return event
         | None -> Lwt_stream.next stream)
         >>= fun remaining ->
+        let remaining = clear_xattr_mod remaining in
         check ~remaining:(check_one remaining first) stream rest
 
   let expect events watcher =
