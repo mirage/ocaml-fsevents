@@ -1,3 +1,10 @@
+### 0.4.0 (2026-08-13)
+
+- Remove `base-bytes` dependency (@Leonidas-from-XIV, #1)
+- Update GitHUb actions scripts (@samoht, #4)
+- Update to `cmdliner.1.1.0` (@samoht, #5)
+- Apply `ocamlformat.0.27.0` (@MisterDA, @samoht, #3)
+
 ### 0.3.0 (2021-04-26)
 
 * library renamed to `fsevents` from `osx-fsevents`
